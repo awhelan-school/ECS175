@@ -1,0 +1,35 @@
+*********************************************************************
+*			Polygon 3D Geometry 			    *		  
+*********************************************************************
+*										  	        *
+* ->(T)ranslate Polygon - Use Arrow Keys					  	        *
+* ->(R)otate Object - Toggle "r" and rotate with +/-		  			        *
+* ->(S)cale Object  - Toggle "s" and scale with +/-		      			        *
+* ->(V)iewport Pan  - Toggle "v" and pan camera with +/- & arrow keys	
+*	        
+* ->(0-9)Select Object - Select Object to Manipulate			                    
+*			  								        *
+**********************************************************************
+
+# Detailed Descriptions
+1) Selection - Use the number keys to select an object you wish to perform a transformation on. Valid Keys are numerical keys 0-9. Once an object is selected you can chain multiple transformations on that particular object.
+
+2) View-port Pan (extra) - This was implemented with gluLookAt() and sets up the camera initially looking at the center of the unit cube (0.5 0.5 0.5) From the -1.0 Z Axis to achieve a sort of perspective projection. The panning functionality allows you to zoom in/out with the +/- keys and pan the scene in up/down and left/right directions using arrow keys. I mainly used it to get perspective on objects in 3D space and to be able to move my objects inside the unit cube since.
+
+3) Scale - The scaling is performed with respect to the centroid using the average sum of point coordinates. This feature is unchanged from the previous assignment. Simply use the +/- keys to make and object bigger or smaller.
+
+4) Translate - Again this feature is unchanged other than I added arrow keys to perform the translations in 3D space. Left/Right affect the x-axis and Up/Down affect the y-axis the +/- moves the object in the corresponding z-axis.  
+
+5) Switching Modes - Toggling the proper key will put you in that desired transformation mode. Transformations will not be performed unless a Mode is specified. 
+ 
+# Additional Notes
+
+* The test File with coordinates was changed to test_scene to keep with convention. 
+
+* The Orthogonal projections (xy, yz, xz) are set up as positive axis values from 0 to 1. If an object's coordinates are outside that viewport then they won't appear on the orthogonal viewport but will appear on the perspective one. In addition using the pan feature/scale allows you to place objects within this Orthogonal coordinate space but it must be done manually.
+
+* Rotate Feature: Pressing "R" once will ask for the coordinates Points P0 and P1. Then the user can perform the rotation with +/- keys but also perform other transformation without removing the rotation axis. In other words, you can rotate then scale, translate, pan and rotate one again. Pressing "R" twice (i.e when in Rotation Mode) will erase the axis and you can press "R" again to input a new Rotation Axis.
+
+* Rotations about arbitrary axis was performed using Quaternion rotations which made it easier to deal with axis that coincided with the coordinate axis.
+
+* Some code in the matrix class was implemented but ultimately not used because of how convenient Quaternion rotations are.

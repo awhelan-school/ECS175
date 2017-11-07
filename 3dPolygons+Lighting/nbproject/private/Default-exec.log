@@ -1,0 +1,11 @@
+called: /usr/bin/g++
+	/home/alex/Desktop/ECS175/p3/3dPolygons+Lighting
+	/usr/bin/g++
+	-std=c++11
+	./src/include
+	-I/usr/include
+	-c
+	src/demo.cpp
+	-o
+	demo.o
+
