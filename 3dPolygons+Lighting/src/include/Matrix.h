@@ -19,7 +19,8 @@ public:
     static void Transpose(Matrix &m, Matrix &mt);
     friend std::ostream& operator <<(std::ostream &out, Matrix& m);
     friend std::ostream& operator <<(std::ostream &out, Point& p);
-    Point operator *(Point &P);
+    Point  operator *(Point &P);
+    Matrix operator *(Matrix &M);
 private:   
     GLint row, col;
 };
