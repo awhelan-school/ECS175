@@ -9,7 +9,7 @@ Matrix::Matrix() {
             mat[r][c] = (r == c);
 }
 
-Matrix::Matrix(GLfloat tx, GLfloat ty, GLfloat tz) {
+Matrix::Matrix(GLfloat tx, GLfloat ty, GLfloat tz) : Matrix() {
 
     mat[0][3] = tx;
     mat[1][3] = ty;
@@ -77,4 +77,23 @@ Point Matrix::operator *(Point& P){
         }       
     }       
     return Pout;
+}
+
+Matrix Matrix::operator *(Matrix& M){
+    
+    Matrix Mout;
+    GLint row, col;
+    Matrix4x4 matTemp;
+    
+    for(row = 0; row < 4; row++){
+        for(col = 0; col < 4; col++){
+            matTemp[row][col] = this->mat[row][0] * M.mat[0][col] + this->mat[row][1] * M.mat[1][col] +
+                                this->mat[row][2] * M.mat[2][col] + this->mat[row][3] * M.mat[3][col];       
+        }      
+    }    
+    for(row = 0; row < 4; row++)
+        for(col = 0; col < 4; col++)
+            Mout.mat[row][col] = matTemp[row][col];
+    
+    return Mout;
 }
