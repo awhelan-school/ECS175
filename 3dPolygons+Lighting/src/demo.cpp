@@ -59,11 +59,9 @@ int VMode = 0, TMode = 0, SMode = 0, RMode = 0;
 int CObject = 0;
 bool Gselect;
 bool RotAxis = false;
-Matrix4x4 MatRot;
+Matrix MatRot;
 
 void CopyMatrix(Matrix &m);
-void MatrixMult(Matrix4x4 &m1, Matrix4x4 &m2);
-void translate3D(GLfloat ptx, GLfloat pty, GLfloat ptz);
 void rotateView(char id, int &Mode, float &rval);
 void rotate3D(Point RX0, Point RX1, float theta);
 void translate(char id, int &Mode, int OID);
@@ -624,7 +622,7 @@ void RotateObject(char id, int &Mode, int OID, GLfloat angle)
 void rotate3D(Point RX0, Point RX1, GLfloat theta)
 {
     
-    Matrix4x4 MQ;
+    Matrix MQ;
     Matrix MI;
  
     GLfloat axisVecLength = sqrt((RX1.xyz[0][0] - RX0.xyz[0][0]) * (RX1.xyz[0][0] - RX0.xyz[0][0])
@@ -641,58 +639,32 @@ void rotate3D(Point RX0, Point RX1, GLfloat theta)
     GLfloat uy = (RX1.xyz[1][0] - RX0.xyz[1][0]) / axisVecLength;
     GLfloat uz = (RX1.xyz[2][0] - RX0.xyz[2][0]) / axisVecLength;
 
-    translate3D((-1)*RX0.xyz[0][0], (-1)*RX0.xyz[1][0], (-1)*RX0.xyz[2][0]);
+    Matrix MT((-1)*RX0.xyz[0][0], (-1)*RX0.xyz[1][0], (-1)*RX0.xyz[2][0]);
+    
+    std::cout << "MT: \n" << MT << std::endl;
+    
+    MatRot = MatRot * MT;
     
     for(int i = 0; i < 4; i++)
         for(int j = 0; j < 4; j++){
-            MQ[i][j] = MI.mat[i][j];
+            MQ.mat[i][j] = MI.mat[i][j];
         }
              
-    MQ[0][0] = ux * ux * oneC + cosA;
-    MQ[0][1] = ux * uy * oneC - uz*sinA;
-    MQ[0][2] = ux * uz * oneC + uy*sinA;
-    MQ[1][0] = uy * ux * oneC + uz*sinA;
-    MQ[1][1] = uy * uy * oneC + cosA;
-    MQ[1][2] = uy * uz * oneC - ux*sinA;
-    MQ[2][0] = uz * ux * oneC - uy*sinA;
-    MQ[2][1] = uz * uy * oneC + ux*sinA;
-    MQ[2][2] = uz * uz * oneC + cosA;
+    MQ.mat[0][0] = ux * ux * oneC + cosA;
+    MQ.mat[0][1] = ux * uy * oneC - uz*sinA;
+    MQ.mat[0][2] = ux * uz * oneC + uy*sinA;
+    MQ.mat[1][0] = uy * ux * oneC + uz*sinA;
+    MQ.mat[1][1] = uy * uy * oneC + cosA;
+    MQ.mat[1][2] = uy * uz * oneC - ux*sinA;
+    MQ.mat[2][0] = uz * ux * oneC - uy*sinA;
+    MQ.mat[2][1] = uz * uy * oneC + ux*sinA;
+    MQ.mat[2][2] = uz * uz * oneC + cosA;
 
-    MatrixMult(MQ, MatRot);
+    MatRot = MQ * MatRot;
 
-    translate3D(RX0.xyz[0][0], RX0.xyz[1][0], RX0.xyz[2][0]);
+    Matrix MTinv(RX0.xyz[0][0], RX0.xyz[1][0], RX0.xyz[2][0]);
+    MatRot = MatRot * MTinv;
 
-}
-
-void MatrixMult(Matrix4x4 &m1, Matrix4x4 &m2){
-    GLint row, col;
-    Matrix4x4 matTemp;
-    
-    for(row = 0; row < 4; row++){
-        for(col = 0; col < 4; col++){
-            matTemp[row][col] = m1[row][0] * m2[0][col] + m1[row][1] * m2[1][col] +
-                                m1[row][2] * m2[2][col] + m1[row][3] * m2[3][col];       
-        }      
-    }    
-    for(row = 0; row < 4; row++)
-        for(col = 0; col < 4; col++)
-            m2[row][col] = matTemp[row][col];
-}
-
-void translate3D(GLfloat ptx, GLfloat pty, GLfloat ptz){
-    
-    Matrix MI;
-    Matrix4x4 matTransl3D;
-    
-    for(int i = 0; i < 4; i++)
-        for(int j = 0; j < 4; j++)
-            matTransl3D[i][j] = MI.mat[i][j];
-    
-    matTransl3D[0][3] = ptx;
-    matTransl3D[1][3] = pty;
-    matTransl3D[2][3] = ptz;
-    
-    MatrixMult(matTransl3D, MatRot);
 }
 
 void CopyMatrix(Matrix &m){
@@ -700,7 +672,7 @@ void CopyMatrix(Matrix &m){
     
     for(row = 0; row < 4; row++){
         for(col = 0; col < 4; col++){
-            m.mat[row][col] = MatRot[row][col];
+            m.mat[row][col] = MatRot.mat[row][col];
         }      
     }   
 }
@@ -710,6 +682,6 @@ void setIdentity(){
     
     for(int i = 0; i < 4; i++)
         for(int j = 0; j < 4; j++)
-            MatRot[i][j] = MI.mat[i][j];
+            MatRot.mat[i][j] = MI.mat[i][j];
     
 }
