@@ -29,45 +29,28 @@
         <dependencyChecking>false</dependencyChecking>
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
-      <flagsDictionary>
-        <element flagsID="0" commonFlags="-std=c++11"/>
-      </flagsDictionary>
       <codeAssistance>
+        <resolveSymbolicLinks>true</resolveSymbolicLinks>
       </codeAssistance>
       <makefileType>
         <makeTool>
           <buildCommandWorkingDir>.</buildCommandWorkingDir>
           <buildCommand>${MAKE} -f Makefile</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
-          <executablePath></executablePath>
-          <ccTool>
-            <incDir>
-              <pElem>/usr/include</pElem>
-              <pElem>src/include</pElem>
-              <pElem>.</pElem>
-            </incDir>
-          </ccTool>
+          <executablePath>glutdemo</executablePath>
         </makeTool>
         <preBuild>
           <preBuildCommandWorkingDir>.</preBuildCommandWorkingDir>
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <item path="src/Matrix.cpp" ex="false" tool="1" flavor2="8">
-        <ccTool flags="0">
-        </ccTool>
+      <item path="src/Matrix.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="src/data.cpp" ex="false" tool="1" flavor2="8">
-        <ccTool flags="0">
-        </ccTool>
+      <item path="src/data.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="src/demo.cpp" ex="false" tool="1" flavor2="8">
-        <ccTool flags="0">
-        </ccTool>
+      <item path="src/demo.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="src/fileIO.cpp" ex="false" tool="1" flavor2="8">
-        <ccTool flags="0">
-        </ccTool>
+      <item path="src/fileIO.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
   </confs>

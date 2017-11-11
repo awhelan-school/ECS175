@@ -10,7 +10,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/alex/Desktop/ECS175/p3/3dPolygons+Lighting/Makefile</file>
+            <file>file:/Users/Whelan/Desktop/ECS175/ECS175/3dPolygons+Lighting/src/fileIO.cpp</file>
+            <file>file:/Users/Whelan/Desktop/ECS175/ECS175/3dPolygons+Lighting/input/test_objs%20copy.txt</file>
+            <file>file:/Users/Whelan/Desktop/ECS175/ECS175/3dPolygons+Lighting/src/data.cpp</file>
+            <file>file:/Users/Whelan/Desktop/ECS175/ECS175/3dPolygons+Lighting/src/demo.cpp</file>
+            <file>file:/Users/Whelan/Desktop/ECS175/ECS175/3dPolygons+Lighting/include/fileIO.h</file>
+            <file>file:/Users/Whelan/Desktop/ECS175/ECS175/3dPolygons+Lighting/include/data.h</file>
         </group>
     </open-files>
 </project-private>

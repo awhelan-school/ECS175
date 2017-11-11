@@ -47,7 +47,11 @@ float pixel_size;
 int win_height;
 int win_width;
 
+int options_width;
+
 std::vector<Object> Objects;
+static Light lfx;
+
 Point RX0, RX1;
 
 GLfloat xv = 0.0, yv = 0.0, zv = -1.0;
@@ -69,8 +73,10 @@ void scaleObject(char id, int &Mode, float Sf, int OID);
 void RotateObject(char id, int &Mode, int OID, GLfloat angle);
 void drawAxis();
 void drawRotAxis();
-void drawSegment(Point p0, Point p1);
+void drawSegment(Point p0, Point p1, Point p2);
 void setIdentity();
+void displayOptions();
+void output(GLfloat x, GLfloat y, char *text);
 
 void init();
 void idle();
@@ -83,23 +89,27 @@ void mouse(int button, int state, int x, int y);
 void motion(int x, int y);
 void check();
 
-int main(int argc, char **argv)
-{
-    readFile(Objects);
+int main(int argc, char **argv) {
+    readFile(Objects, lfx);
     setIdentity();
-    
+
+    options_width = 32;
     //the number of pixels in the grid
-    grid_width = 128;
-    grid_height = 128;
+    grid_width = 128 + options_width;
+    grid_height = 100;
 
     //the size of pixels sets the inital window height and width
     //don't make the pixels too large or the screen size will be larger than
     //your display size
+
+
     pixel_size = 5;
 
     /*Window information*/
-    win_height = grid_height*pixel_size;
-    win_width = grid_width*pixel_size;
+    win_height = grid_height * pixel_size;
+    win_width  = grid_width  * pixel_size;
+
+
 
     /*Set up glut functions*/
     /** See https://www.opengl.org/resources/libraries/glut/spec3/spec3.html ***/
@@ -130,8 +140,7 @@ int main(int argc, char **argv)
 }
 
 /*initialize gl stufff*/
-void init()
-{
+void init() {
     //set clear color (Default background to white)
     glClearColor(1.0, 1.0, 1.0, 1.0);
     //checks for OpenGL errors
@@ -140,26 +149,26 @@ void init()
 
 //called repeatedly when glut isn't doing anything else
 
-void idle()
-{
+void idle() {
     //redraw the scene over and over again
     glutPostRedisplay();
 }
 
 //this is where we render the screen
 
-void display()
-{
+void display() {
     //clears the screen
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     //clears the opengl Modelview transformation matrix
+
+    displayOptions();
 
     for (unsigned int i = 0; i < 4; i++) {
 
 
         if (i == 0) {
             glLoadIdentity();
-            glViewport(0, win_height / 2, win_width / 2, win_height / 2);
+            glViewport(0, win_height / 2, win_width / 2  - (options_width*pixel_size), win_height / 2);
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
 
@@ -176,7 +185,7 @@ void display()
             //Code Adapted From NEHE tutorial on Multiple Viewports
             // Set The Viewport To The Top Right.  
             glLoadIdentity();
-            glViewport((win_width / 2) + 4, (win_height / 2) + 4, (win_width / 2) - 16, (win_height / 2) - 16);
+            glViewport((win_width / 2) - (options_width*pixel_size)/4, (win_height / 2) + 4, (win_width / 2)- (options_width*pixel_size) , (win_height / 2) - 16);
             glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
             glLoadIdentity(); // Reset The Projection Matrix
             // Set Up Ortho Mode To Fit 1/4 The Screen (Size Of A Viewport)
@@ -192,7 +201,7 @@ void display()
         }
         if (i == 2) {
             glLoadIdentity();
-            glViewport((win_width / 2) + 4, 4, (win_width / 2) - 16, (win_height / 2) - 16);
+            glViewport((win_width / 2) - (options_width*pixel_size)/4, 4, (win_width/ 2) - (options_width*pixel_size), (win_height / 2) - 16);
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
             //gluOrtho2D(1.0, 2.0, 0.0, 1.0);
@@ -206,7 +215,7 @@ void display()
         }
         if (i == 3) {
             glLoadIdentity();
-            glViewport(4, 4, (win_width / 2) - 16, (win_height / 2) - 16);
+            glViewport(4, 4, (win_width / 2) - (options_width*pixel_size), (win_height / 2) - 16);
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
             gluOrtho2D(0.0, 1.0, 0.0, 1.0);
@@ -215,44 +224,62 @@ void display()
         }
     }
 
-    writeFile(Objects);
+    //TODO ADD COMMENTS TO OUPUT
+    //writeFile(Objects);
     //blitz the current opengl framebuffer on the screen
     glutSwapBuffers();
     //checks for opengl errors
     check();
 }
 
-void draw_lines()
-{
+void draw_lines() {
 
     drawAxis();
 
     if (RotAxis == true)
         drawRotAxis();
 
-    Point p0, p1;
+    Point p1, p2, p3;
 
     //tells openGL to interpret every two calls to glVertex as a line
 
     for (int k = 0; k < Objects.size(); k++)
-        for (unsigned int i = 0; i < Objects[k].EList.size(); i++) {
+        for (unsigned int i = 0; i < Objects[k].TList.size(); i++) {
 
 
-            p0 = Objects[k].EList[i].first;
-            p1 = Objects[k].EList[i].second;
+            p1 = Objects[k].TList[i].p1;
+            p2 = Objects[k].TList[i].p2;
+            p3 = Objects[k].TList[i].p3;
 
             if (k == CObject)
                 Gselect = true;
             else
                 Gselect = false;
 
-            drawSegment(p0, p1);
+            drawSegment(p1, p2, p3);
         }
+
+    for (int m = 0; m < Objects.size(); m++) {
+        for (int n = 0; n < Objects[m].VList.size(); n++) {
+
+            Point p = Objects[m].VList[n];
+            Vector f(p.xyz[0][0], p.xyz[1][0], p.xyz[2][0]);
+            Vector t = Objects[m].NormVecList[n];
+
+
+            glLineWidth(2.0); //sets the "width" of each line we are rendering
+            glBegin(GL_LINES);
+            //Draw Rotation Lines
+            glColor3f(1.0, 0.07, 0.57);
+            glVertex3f(f.x, f.y, f.z);
+            glVertex3f(f.x + t.x, f.y + t.y, f.z + t.z);
+            glEnd();
+        }
+    }//DrawNormals
 
 }
 
-void drawRotAxis()
-{
+void drawRotAxis() {
 
     glLineWidth(5.0); //sets the "width" of each line we are rendering
     glBegin(GL_LINES);
@@ -264,8 +291,7 @@ void drawRotAxis()
 
 }
 
-void drawSegment(Point p0, Point p1)
-{
+void drawSegment(Point p0, Point p1, Point p2) {
     glLineWidth(1.0); //sets the "width" of each line we are rendering
     glBegin(GL_LINES);
     //Draw Black Lines
@@ -275,6 +301,12 @@ void drawSegment(Point p0, Point p1)
         glColor3f(0.0, 0.0, 0.0);
     glVertex3f(p0.xyz[0][0], p0.xyz[1][0], p0.xyz[2][0]);
     glVertex3f(p1.xyz[0][0], p1.xyz[1][0], p1.xyz[2][0]);
+
+    glVertex3f(p1.xyz[0][0], p1.xyz[1][0], p1.xyz[2][0]);
+    glVertex3f(p2.xyz[0][0], p2.xyz[1][0], p2.xyz[2][0]);
+
+    glVertex3f(p2.xyz[0][0], p2.xyz[1][0], p2.xyz[2][0]);
+    glVertex3f(p0.xyz[0][0], p0.xyz[1][0], p0.xyz[2][0]);
     glEnd();
 
 }
@@ -283,8 +315,7 @@ void drawSegment(Point p0, Point p1)
 
 /*this needs to be fixed so that the aspect ratio of the screen is consistant with the orthographic projection*/
 
-void reshape(int width, int height)
-{
+void reshape(int width, int height) {
 
 
     /*set up projection matrix to define the view port*/
@@ -314,49 +345,44 @@ void reshape(int width, int height)
     check();
 }
 
-void SpecialInput(int key, int x, int y)
-{
+void SpecialInput(int key, int x, int y) {
     switch (key) {
-    case GLUT_KEY_UP:
-        printf("User hit the UP Arrow\n");
-        if (TMode == 1) {
-            ty += 0.1;
-            translate(' ', TMode, CObject);
-        }
-        else if(VMode == 1){
-            yv += 0.1;
-        }
-        break;
-    case GLUT_KEY_DOWN:
-        printf("User hit the DOWN Arrow\n");
-        if (TMode == 1) {
-            ty -= 0.1;
-            translate(' ', TMode, CObject);
-        }
-        else if(VMode == 1){
-            yv -= 0.1;
-        }
-        break;
-    case GLUT_KEY_LEFT:
-        printf("User hit the LEFT Arrow\n");
-        if (TMode == 1) {
-            tx -= 0.1;
-            translate(' ', TMode, CObject);
-        }
-        else if(VMode == 1){
-            xv -= 0.1;
-        }
-        break;
-    case GLUT_KEY_RIGHT:
-        printf("User hit the RIGHT Arrow\n");
-        if (TMode == 1) {
-            tx += 0.1;
-            translate(' ', TMode, CObject);
-        }
-        else if(VMode == 1){
-            xv += 0.1;
-        }
-        break;
+        case GLUT_KEY_UP:
+            printf("User hit the UP Arrow\n");
+            if (TMode == 1) {
+                ty += 0.1;
+                translate(' ', TMode, CObject);
+            } else if (VMode == 1) {
+                yv += 0.1;
+            }
+            break;
+        case GLUT_KEY_DOWN:
+            printf("User hit the DOWN Arrow\n");
+            if (TMode == 1) {
+                ty -= 0.1;
+                translate(' ', TMode, CObject);
+            } else if (VMode == 1) {
+                yv -= 0.1;
+            }
+            break;
+        case GLUT_KEY_LEFT:
+            printf("User hit the LEFT Arrow\n");
+            if (TMode == 1) {
+                tx -= 0.1;
+                translate(' ', TMode, CObject);
+            } else if (VMode == 1) {
+                xv -= 0.1;
+            }
+            break;
+        case GLUT_KEY_RIGHT:
+            printf("User hit the RIGHT Arrow\n");
+            if (TMode == 1) {
+                tx += 0.1;
+                translate(' ', TMode, CObject);
+            } else if (VMode == 1) {
+                xv += 0.1;
+            }
+            break;
     }
 
     glutPostRedisplay();
@@ -364,13 +390,12 @@ void SpecialInput(int key, int x, int y)
 
 //gets called when a key is pressed on the keyboard
 
-void key(unsigned char ch, int x, int y)
-{
+void key(unsigned char ch, int x, int y) {
     switch (ch) {
-    default:
-        //prints out which key the user hit
-        printf("User hit the \"%c\" key\n", ch);
-        break;
+        default:
+            //prints out which key the user hit
+            printf("User hit the \"%c\" key\n", ch);
+            break;
     }
 
     if (isdigit(ch)) {
@@ -397,7 +422,7 @@ void key(unsigned char ch, int x, int y)
         scaleObject(ch, SMode = 1, Sf, CObject);
     }
     if (ch == 'r' || RMode == 1) {
-        TMode = VMode = SMode = 0;      
+        TMode = VMode = SMode = 0;
         RotateObject(ch, RMode, CObject, angle);
     }
     //redraw the scene after keyboard input
@@ -407,19 +432,18 @@ void key(unsigned char ch, int x, int y)
 
 //gets called when a mouse button is pressed
 
-void mouse(int button, int state, int x, int y)
-{
+void mouse(int button, int state, int x, int y) {
     //print the pixel location, and the grid location
     printf("MOUSE AT PIXEL: %d %d, GRID: %d %d\n", x, y, (int) (x / pixel_size), (int) ((win_height - y) / pixel_size));
     switch (button) {
-    case GLUT_LEFT_BUTTON: //left button
-        printf("LEFT ");
-        break;
-    case GLUT_RIGHT_BUTTON: //right button
-        printf("RIGHT ");
-    default:
-        printf("UNKNOWN "); //any other mouse button
-        break;
+        case GLUT_LEFT_BUTTON: //left button
+            printf("LEFT ");
+            break;
+        case GLUT_RIGHT_BUTTON: //right button
+            printf("RIGHT ");
+        default:
+            printf("UNKNOWN "); //any other mouse button
+            break;
     }
     if (state != GLUT_DOWN) //button released
         printf("BUTTON UP\n");
@@ -432,8 +456,7 @@ void mouse(int button, int state, int x, int y)
 
 //gets called when the curser moves accross the scene
 
-void motion(int x, int y)
-{
+void motion(int x, int y) {
     //redraw the scene after mouse movement
     glutPostRedisplay();
 }
@@ -441,8 +464,7 @@ void motion(int x, int y)
 //checks for any opengl errors in the previous calls and
 //outputs if they are present
 
-void check()
-{
+void check() {
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
         printf("GLERROR: There was an error %s\n", gluErrorString(err));
@@ -450,8 +472,7 @@ void check()
     }
 }
 
-void drawAxis()
-{
+void drawAxis() {
     glLineWidth(4.0); //sets the "width" of each line we are rendering
 
     //tells opengl to interperate every two calls to glVertex as a line
@@ -475,8 +496,7 @@ void drawAxis()
     glEnd();
 }
 
-void scaleObject(char id, int &Mode, float Sf, int OID)
-{
+void scaleObject(char id, int &Mode, float Sf, int OID) {
     std::cout << "Scale Factor \n" << Sf << "\n";
 
     if (id == '+' && SMode) {
@@ -501,18 +521,11 @@ void scaleObject(char id, int &Mode, float Sf, int OID)
             Objects[OID].VList[index] = Pt;
         }//Update Vertices
 
-        for (int k = 0; k < Objects[OID].EList.size(); k++) {
-            int p0, p1;
-            p0 = Objects[OID].EMap[k].first;
-            p1 = Objects[OID].EMap[k].second;
-            std::pair<Point, Point> p = {Objects[OID].VList[p0], Objects[OID].VList[p1]};
-            Objects[OID].EList[k] = p;
-        }//Update_Edge_List          
+        UpdateTList(Objects, OID);
     }
 }
 
-void translate(char id, int &Mode, int OID)
-{
+void translate(char id, int &Mode, int OID) {
 
     if (id == 't' && TMode == 0) {
         std::cout << "TMode Enabled" << "\n";
@@ -540,22 +553,16 @@ void translate(char id, int &Mode, int OID)
 
             Point Pt = MT * Objects[OID].VList[index];
             Objects[OID].VList[index] = Pt;
+
         }//Update Vertices
         Objects[OID].center = MT * Objects[OID].center;
 
-        for (int k = 0; k < Objects[OID].EList.size(); k++) {
-            int p0, p1;
-            p0 = Objects[OID].EMap[k].first;
-            p1 = Objects[OID].EMap[k].second;
-            std::pair<Point, Point> p = {Objects[OID].VList[p0], Objects[OID].VList[p1]};
-            Objects[OID].EList[k] = p;
-        }//Update_Edge_List          
+        UpdateTList(Objects, OID);
     }
     tx = ty = tz = 0;
 }//Translate
 
-void rotateView(char id, int &Mode, float &rval)
-{
+void rotateView(char id, int &Mode, float &rval) {
     if (id == '+') {
         rval += 0.1;
     }//positive
@@ -567,8 +574,7 @@ void rotateView(char id, int &Mode, float &rval)
     std::cout << "S = " << scale << "\n";
 }
 
-void RotateObject(char id, int &Mode, int OID, GLfloat angle)
-{
+void RotateObject(char id, int &Mode, int OID, GLfloat angle) {
     if (id == 'r' && RotAxis == false) {
         std::cout << "RMode Enabled" << "\n";
         std::cout << "Enter the Coordinate of 1st Point (separated by spaces) : ";
@@ -594,42 +600,34 @@ void RotateObject(char id, int &Mode, int OID, GLfloat angle)
     }//negative   
 
     Matrix MR;
-    
+
     if (OID < Objects.size() && RMode) {
         for (int index = 0; index < Objects[OID].VList.size(); index++) {
-                                  
-            Point Pt = Objects[OID].VList[index];        
-            rotate3D(RX0, RX1, angle);     
-            CopyMatrix(MR);          
-            Pt = MR * Pt;       
+
+            Point Pt = Objects[OID].VList[index];
+            rotate3D(RX0, RX1, angle);
+            CopyMatrix(MR);
+            Pt = MR * Pt;
             Objects[OID].VList[index] = Pt;
             setIdentity();
-                       
-        }//Update Vertices
-        
-        Objects[OID].center = calculateCenter(Objects[OID].VList);//recalculate CenterPt
 
-        for (int k = 0; k < Objects[OID].EList.size(); k++) {
-            int p0, p1;
-            p0 = Objects[OID].EMap[k].first;
-            p1 = Objects[OID].EMap[k].second;
-            std::pair<Point, Point> p = {Objects[OID].VList[p0], Objects[OID].VList[p1]};
-            Objects[OID].EList[k] = p;
-        }//Update_Edge_List          
+        }//Update Vertices
+
+        Objects[OID].center = calculateCenter(Objects[OID].VList); //recalculate CenterPt
+        UpdateTList(Objects, OID);
     }
 }
 
-void rotate3D(Point RX0, Point RX1, GLfloat theta)
-{
-    
+void rotate3D(Point RX0, Point RX1, GLfloat theta) {
+
     Matrix MQ;
     Matrix MI;
- 
+
     GLfloat axisVecLength = sqrt((RX1.xyz[0][0] - RX0.xyz[0][0]) * (RX1.xyz[0][0] - RX0.xyz[0][0])
             +(RX1.xyz[1][0] - RX0.xyz[1][0]) * (RX1.xyz[1][0] - RX0.xyz[1][0])
             +(RX1.xyz[2][0] - RX0.xyz[2][0]) * (RX1.xyz[2][0] - RX0.xyz[2][0])
             );
-    
+
     GLfloat cosA = cos(theta * PI / 180);
     GLfloat tempA = cosA;
     GLfloat oneC = 1 - tempA;
@@ -639,17 +637,17 @@ void rotate3D(Point RX0, Point RX1, GLfloat theta)
     GLfloat uy = (RX1.xyz[1][0] - RX0.xyz[1][0]) / axisVecLength;
     GLfloat uz = (RX1.xyz[2][0] - RX0.xyz[2][0]) / axisVecLength;
 
-    Matrix MT((-1)*RX0.xyz[0][0], (-1)*RX0.xyz[1][0], (-1)*RX0.xyz[2][0]);
-    
+    Matrix MT((-1) * RX0.xyz[0][0], (-1) * RX0.xyz[1][0], (-1) * RX0.xyz[2][0]);
+
     std::cout << "MT: \n" << MT << std::endl;
-    
+
     MatRot = MatRot * MT;
-    
-    for(int i = 0; i < 4; i++)
-        for(int j = 0; j < 4; j++){
+
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++) {
             MQ.mat[i][j] = MI.mat[i][j];
         }
-             
+
     MQ.mat[0][0] = ux * ux * oneC + cosA;
     MQ.mat[0][1] = ux * uy * oneC - uz*sinA;
     MQ.mat[0][2] = ux * uz * oneC + uy*sinA;
@@ -667,21 +665,59 @@ void rotate3D(Point RX0, Point RX1, GLfloat theta)
 
 }
 
-void CopyMatrix(Matrix &m){
+void CopyMatrix(Matrix &m) {
     GLint row, col;
-    
-    for(row = 0; row < 4; row++){
-        for(col = 0; col < 4; col++){
+
+    for (row = 0; row < 4; row++) {
+        for (col = 0; col < 4; col++) {
             m.mat[row][col] = MatRot.mat[row][col];
-        }      
-    }   
+        }
+    }
 }
 
-void setIdentity(){
+void setIdentity() {
     Matrix MI;
-    
-    for(int i = 0; i < 4; i++)
-        for(int j = 0; j < 4; j++)
+
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
             MatRot.mat[i][j] = MI.mat[i][j];
+
+}
+
+void displayOptions() {
     
+    glLoadIdentity();
+    glViewport(win_width - options_width*pixel_size, 0, options_width*pixel_size, win_height);
+    glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
+    glLoadIdentity(); // Reset The Projection Matrix
+    
+    gluOrtho2D(0.0, options_width*32, 0.0, options_width*48);
+
+    char text[] = "Slider 1";
+
+    output(10, 10, text);
+    
+    glLineWidth(4.0); //sets the "width" of each line we are rendering
+
+    //tells opengl to interperate every two calls to glVertex as a line
+    glBegin(GL_LINES);
+
+    // X-Axis (BLUE)  
+    glColor3f(0.0, 0.0, 1.0);
+    glVertex2f(100, 350);
+    glVertex2f(500, 350);
+
+    glEnd();
+
+
+}
+
+void output(GLfloat x, GLfloat y, char *text) {
+    char *p;
+
+    glPushMatrix();
+    glTranslatef(x, y, 0);
+    for (p = text; *p; p++)
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, *p);
+    glPopMatrix();
 }

@@ -1,7 +1,6 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include <GL/gl.h>
 #include <iostream>
 
 #include "data.h"

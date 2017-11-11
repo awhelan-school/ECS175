@@ -7,8 +7,11 @@
 #include <fstream>
 
 
-void readFile(std::vector<Object> &vec);
+void readFile(std::vector<Object> &vec, Light &lfx);
+void readLight(Light &lfx);
+void readMaterials();
 void writeFile(std::vector<Object> &vec);
+void getRaw();
 
 #endif /* FILEIO_H */
 
