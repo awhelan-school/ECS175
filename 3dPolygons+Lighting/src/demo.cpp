@@ -170,7 +170,7 @@ void display()
 
     /*****DRAW GRID ON SCREEN*******/
     //creates a rendering area across the window
-    glViewport(0,0,win_width+10,win_height+10);
+    glViewport(0,0,grid_width*pixel_size,grid_height*pixel_size);
 
     //displayOptions();
 
@@ -260,7 +260,7 @@ void display()
 
             for (k = 0; k < Objects.size(); k++) {
                 for (n = 0; n < Objects[k].TList.size(); n++) {
-                    fill_triangles(Objects[k].Ip3, Objects[k], Objects[k].TList[n], 3);
+                    fill_triangles(Objects[k].Ip3, Objects[k], Objects[k].TList[n], 3, NMode);
                 }
             }//Raster_Triangles
             
@@ -474,8 +474,14 @@ void key(unsigned char ch, int x, int y)
         TMode = VMode = SMode = 0;
         RotateObject(ch, RMode, CObject, angle, Objects, RX0, RX1, RotAxis);
     }
-    if(ch == 'n')
+    if(ch == 'n'){
         NMode = NMode ? 0 : 1;
+        if(NMode)
+            pixel_size = 3;
+        else 
+            pixel_size = 1;
+    }
+        
             
 
     //redraw the scene after keyboard input

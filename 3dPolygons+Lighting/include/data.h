@@ -103,7 +103,7 @@ struct edge{
     vpt n1;
     vpt n2;
     inline float length() const {
-        return(sqrt( pow((p1.x - p2.x),2) + pow((p1.y - p2.y),2) + pow((p1.z - p2.z),2)));
+        return(sqrt( pow((p2.x - p1.x),2) + pow((p2.y - p1.y),2) + pow((p2.z - p1.z),2)));
     }//length of edge
     
 };
@@ -114,12 +114,14 @@ void calculateNormalV(Object &o);
 void UpdateTList(std::vector<Object> &o, int &OID);
 Vector Phong(Object &o, Vector &fp, Light &lfx, int v);
 
-void fill_triangles(std::vector<Vector> &Ip, Object &obj, touple_t &TList, int ViewPort);
+void fill_triangles(std::vector<Vector> &Ip, Object &obj, touple_t &TList, int ViewPort, int NMode=0);
 
 void scanline_edges(const edge &e1, const edge &e2);
 bool intersect_edge(float scany, const edge& e, float &x_int, Vector &I, Vector &V1, Vector &V2);
 void render_scanline(float y, float x1, float x2);
 void project(int ViewPort, touple_t &TList, vpt &v0, vpt &v1, vpt &v2, std::vector<Vector> &Ip);
-void draw_pix(float x, float y, float Ic);        
+void draw_pix(float x, float y, float Ic);       
+bool clip_test(int x, int y);
+
 #endif /* DATA_H */
 

@@ -3,6 +3,11 @@
 using namespace std;
 
 int VP = 0;
+int N;
+
+float stepy;
+float stepx;
+
 Vector I1;
 Vector I2;
 Vector I3;
@@ -11,6 +16,8 @@ Vector IR;
 Vector Ic;
 
 void draw_pix(float x, float y, float Ic) {
+    
+    if(!clip_test(x,y))return;
     
     glBegin(GL_POINTS);
     
@@ -222,13 +229,20 @@ Vector Phong(Object &o, Vector &fp, Light &lfx, int v)
     return Vout;
 }
 
-void fill_triangles(std::vector<Vector> &Ip, Object &obj, touple_t &TList, int ViewPort)
+void fill_triangles(std::vector<Vector> &Ip, Object &obj, touple_t &TList, int ViewPort, int NMode)
 {   
     //project triangle into pixel space
     vpt v1,v2,v3;
     project(ViewPort,TList,v1,v2,v3, Ip);
     
     VP = ViewPort;
+    N = NMode;
+    
+    if(N){
+        stepy = stepx = 0.01;
+    }
+    else
+        stepy = stepx = 0.001;
     
     //create edges, make sure that the points are sorted
     //by there y values
@@ -271,7 +285,7 @@ void scanline_edges(const edge &e1, const edge &e2){
     float ymin = max(e1.p1.y,e2.p1.y);
     float ymax = min(e1.p2.y,e2.p2.y);
     //scan from bottom to top of edges
-    for(float y = ymin; y <= ymax; y+=0.001){
+    for(float y = ymin; y <= ymax; y+=stepy){
         float x1,x2; //intersection points
         intersect_edge(y,e1,x1,IL,I1,I2);
         intersect_edge(y,e2,x2,IR,I1,I3);
@@ -309,14 +323,24 @@ void render_scanline(float y, float x1, float x2){
     float py= y;
     float px= x1;
     
- 
+    Vector Len = IR - IL;
+    float length = Len.length();
+    
     Ic = { (IL.x * ((IR.x - px)/(IR.x - IL.x))) + (IR.x * ((px - IL.x)/(IR.x - IL.x))), 
            (IL.y * ((IR.y - px)/(IR.y - IL.y))) + (IR.y * ((px - IL.y)/(IR.y - IL.y))),
            (IL.z * ((IR.z - px)/(IR.z - IL.z))) + (IR.z * ((px - IL.z)/(IR.z - IL.z)))    
     };
     //cout << "\nIc == \n" << Ic << "\n******************";
     
-    for(px; px < x2; px += 0.001)
+//    float len = sqrt((x2-x1)*(x2-x1));
+//    float delta = (px)/len;
+//    
+//    Ic = {(1-delta)*IL.x + delta*IR.x,
+//            0,
+//            0    
+//    };
+//    
+    for(px; px < x2; px += stepx)
         draw_pix(px,py,Ic.x);
 }
 
@@ -366,5 +390,6 @@ void project(int ViewPort, touple_t &TList, vpt &v0, vpt &v1, vpt &v2, std::vect
     }
 }
 
-
-
+bool clip_test(int x, int y){
+    return x >= 0 && x < 100 && y >= 0 && y < 100;
+}
