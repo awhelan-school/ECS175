@@ -69,7 +69,7 @@ float Vector::length(){
     return(sqrt( (x * x) + (y * y) + (z * z)));
 }
 
-Vector Vector::operator+ (Vector &v){
+Vector Vector::operator+ (Vector v){
     Vector out;   
     out.x = x + v.x;
     out.y = y + v.y;
@@ -77,7 +77,7 @@ Vector Vector::operator+ (Vector &v){
     return out;
     
 }
-Vector Vector::operator -(Vector& v){
+Vector Vector::operator -(Vector v){
     Vector out;
     out.x = x - v.x;
     out.y = y - v.y;
@@ -85,7 +85,7 @@ Vector Vector::operator -(Vector& v){
     return out;    
 }
 
-Vector Vector::operator /(int k){
+Vector Vector::operator /(float k){
     Vector out;
     
     out.x = x / k;
@@ -94,3 +94,13 @@ Vector Vector::operator /(int k){
     
     return out;    
 }
+
+Vector Vector::operator *(float k){
+    Vector out;
+    
+    out.x = x * k;
+    out.y = y * k;
+    out.z = z * k;
+    
+    return out;    
+}//scalar multiplication

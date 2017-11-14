@@ -7,6 +7,7 @@
         <in>Vector.h</in>
         <in>data.h</in>
         <in>fileIO.h</in>
+        <in>transformations.h</in>
       </df>
       <df name="input">
         <df name="raw">
@@ -18,6 +19,7 @@
         <in>data.cpp</in>
         <in>demo.cpp</in>
         <in>fileIO.cpp</in>
+        <in>transformations.cpp</in>
       </df>
       <df name="usage">
       </df>
@@ -28,7 +30,7 @@
     <conf name="Default" type="0">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
-        <platform>4</platform>
+        <platform>2</platform>
       </toolsSet>
       <compile>
         <compiledirpicklist>

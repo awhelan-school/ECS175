@@ -12,6 +12,7 @@
 #include <tuple>
 #include <utility>
 #include <string>
+#include <algorithm>
 #include <iostream>
 #include <cctype>
 #include <cstdlib>
@@ -34,6 +35,12 @@ typedef struct point{
     return out;
     }
 }Point;
+
+typedef struct
+{
+    Point p0, p1;
+    float m; //slope
+} Edge;
 
 typedef struct{
     float x,y,z;
@@ -62,16 +69,57 @@ typedef struct{
     Material mat;
     unsigned int materialID = 0;
     unsigned int vertices = 0;
-    Point center;//Center of Geometry
-    std::vector<Point> VList;//Vertex List
-    std::vector< touple_t > TList;//number of Triangles
-    std::vector< Vector > NormVecList;//Normal Vector for All vertices 
+    Point center;// Center of Geometry
+    std::vector<Point> VList;// Vertex List
+    std::vector< touple_t > TList;// Number of Triangles
+    std::vector< Vector > NormVecList;// Normal Vector for All vertices 
+    std::vector< Vector > Ip0; // Intensity from xyz
+    std::vector< Vector > Ip1; // Intensity from yz
+    std::vector< Vector > Ip2; // Intensity from xy
+    std::vector< Vector > Ip3; // Intensity from xz
 }Object;
 
 
+//floating point for world and object space
+struct vpt{
+    float x;
+    float y;
+    float z;
+};
+
+//index of triangles
+struct tri{
+    int i;
+    int j;
+    int k;
+};
+
+//edges for doing rasterization
+struct edge{
+    vpt p1;
+    vpt p2;
+    vpt v1;
+    vpt v2;
+    vpt n1;
+    vpt n2;
+    inline float length() const {
+        return(sqrt( pow((p1.x - p2.x),2) + pow((p1.y - p2.y),2) + pow((p1.z - p2.z),2)));
+    }//length of edge
+    
+};
+
+void calculateIntensity(Object &o, Light &lfx);
 Point calculateCenter(std::vector<Point> VList);
 void calculateNormalV(Object &o);
 void UpdateTList(std::vector<Object> &o, int &OID);
-        
+Vector Phong(Object &o, Vector &fp, Light &lfx, int v);
+
+void fill_triangles(std::vector<Vector> &Ip, Object &obj, touple_t &TList, int ViewPort);
+
+void scanline_edges(const edge &e1, const edge &e2);
+bool intersect_edge(float scany, const edge& e, float &x_int, Vector &I, Vector &V1, Vector &V2);
+void render_scanline(float y, float x1, float x2);
+void project(int ViewPort, touple_t &TList, vpt &v0, vpt &v1, vpt &v2, std::vector<Vector> &Ip);
+void draw_pix(float x, float y, float Ic);        
 #endif /* DATA_H */
 

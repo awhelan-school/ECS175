@@ -23,9 +23,10 @@ public:
     Vector(const Vector& orig);
     virtual ~Vector();
     friend ostream& operator<<(ostream &out, Vector &v);
-    Vector operator+ (Vector &v);
-    Vector operator- (Vector &v);
-    Vector operator/ (int k);
+    Vector operator+ (Vector v);
+    Vector operator- (Vector v);
+    Vector operator/ (float k);
+    Vector operator* (float k);
     static Vector crossProduct(Vector &v1, Vector &v2);
     static float dotProduct(Vector &v1, Vector &v2);
     static Vector normalize(Vector &v);

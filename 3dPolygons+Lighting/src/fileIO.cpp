@@ -84,6 +84,12 @@ void readFile(std::vector<Object> &vec, Light &lfx) {
 
             //Allocate for Normal Vectors for Each Vertex
             vec[i].NormVecList.resize(vertices);
+            
+            //Allocate Intensity Vectors
+            vec[i].Ip0.resize(vertices);
+            vec[i].Ip1.resize(vertices);
+            vec[i].Ip2.resize(vertices);
+            vec[i].Ip3.resize(vertices);
 
             for (j = 0; j < vertices; j++) {
                 infile >> vec[i].VList[j].xyz[0][0]; //x-coordinate
@@ -109,8 +115,8 @@ void readFile(std::vector<Object> &vec, Light &lfx) {
             }//Make_Edges    
             
             //Calculate Normals
-            calculateNormalV(vec[i]);            
-            
+            calculateNormalV(vec[i]);
+            calculateIntensity(vec[i], lfx);
             
         }//scanObjects    
     } else {

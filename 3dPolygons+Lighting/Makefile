@@ -1,15 +1,15 @@
 CC = /usr/bin/g++ -std=c++11 
 
 #Warnings
-W := -Wall
+#W := -Wall
 
 #OPENGL LIBS FOR WIN
 #GLLIB := -L/usr/lib/ -lopengl32 -lglu32 -lfreeglut
 #OPENGL LIBS FOR LINUX
-#GLLIB :=  -lGL -lGLEW -lGLU -lglut
+GLLIB :=  -lGL -lGLEW -lGLU -lglut
 #OPENGL LIBS FOR MAC
-W  += -Wno-deprecated
-GLLIB := -framework OpenGL -framework GLUT 
+#W  += -Wno-deprecated
+#GLLIB := -framework OpenGL -framework GLUT 
 
 #COMPILER FLAGS
 CCFLAGS :=
@@ -22,7 +22,7 @@ INCDIR	   := -I/usr/include
 LDLIBS	   := $(GLLIB)
 
 TARGET = glutdemo
-OBJS = demo.o data.o fileIO.o Matrix.o Vector.o
+OBJS = demo.o data.o fileIO.o Matrix.o Vector.o transformations.o
 
 
 all: $(TARGET)
