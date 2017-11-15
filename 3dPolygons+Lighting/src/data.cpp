@@ -5,6 +5,14 @@ using namespace std;
 int VP = 0;
 int N;
 
+//map this square to the framebuffer when projecting
+vpt min_vbox = {-1.0, -1.0, 0.0};
+vpt max_vbox = {1.0, 1.0, 0.0};
+
+
+float gridW;
+float gridH;
+
 float stepy;
 float stepx;
 
@@ -15,21 +23,28 @@ Vector IL;
 Vector IR;
 Vector Ic;
 
-void draw_pix(float x, float y, float Ic) {
-    
-    if(!clip_test(x,y))return;
-    
+void draw_pix(float x, float y, float Ic)
+{
+
+    x = (float) ((x - min_vbox.x)*(max_vbox.x - min_vbox.x) / gridW);
+    y = (float) ((y - min_vbox.y)*(max_vbox.y - min_vbox.y) / gridH);
+
+    x -= 1.0;
+    y -= 1.0;
+
+    if (!clip_test(x, y))return;
+
     glBegin(GL_POINTS);
-    
+
     glColor3f(Ic, Ic, Ic);
-    
-    if(VP == 3)
+
+    if (VP == 3)
         glVertex3f(x, y, 0);
-    else if(VP == 2)
+    else if (VP == 2)
         glVertex3f(x, 0, y);
-    else if(VP == 1)
+    else if (VP == 1)
         glVertex3f(0, x, y);
-    
+
     glEnd();
 }
 
@@ -70,11 +85,12 @@ void calculateNormalV(Object &o)
     o.NormVecList.clear();
 
     Vector avgNormal(0, 0, 0);
-
+    Vector Normal(1, 1, 1);
+    
     int k = 0; // Adjacent Vectors
 
     for (int i = 0; i < o.VList.size(); i++) {
-
+ 
         for (int j = 0; j < o.TList.size(); j++) {
 
             if (o.VList[i].id == o.TList[j].p1.id || o.VList[i].id == o.TList[j].p2.id || o.VList[i].id == o.TList[j].p3.id) {
@@ -88,47 +104,56 @@ void calculateNormalV(Object &o)
                 Vector v0(p0.xyz[0][0], p0.xyz[1][0], p0.xyz[2][0]);
                 Vector v1(p1.xyz[0][0], p1.xyz[1][0], p1.xyz[2][0]);
                 Vector v2(p2.xyz[0][0], p2.xyz[1][0], p2.xyz[2][0]);
+                
 
                 Vector N = v1 - v0;
                 Vector M = v2 - v0;
 
                 Vector vN = Vector::crossProduct(N, M);
-
-                if (vN.length()) {
-                    Vector::normalize(vN);
-                    Vector::normalize(vN);
-                }
-
-                if (k == 1)
-                    avgNormal = avgNormal + vN;
-
-
-                if (Vector::dotProduct(vN, avgNormal) >= 0) {
-
-                    float nL = vN.length();
-
-                    if (nL > 0) {
-                        avgNormal = avgNormal + vN;
-                        avgNormal = avgNormal / nL;
-                        avgNormal = avgNormal / k; // Average Adjacent Normals
-                    }
-
-                } else {
-                    vN.x *= -1;
-                    vN.y *= -1;
-                    vN.z *= -1;
-                    float nL = vN.length();
-
-                    if (nL > 0) {
-                        avgNormal = avgNormal + vN;
-                        avgNormal = avgNormal / nL;
-                        avgNormal = avgNormal / k; // Average Adjacent Normals
-                    }
-                }
+                avgNormal = avgNormal + vN;
                 
+//                if (vN.length()) {
+//                    Vector::normalize(vN);
+//                }
+//
+//                if (k == 1)
+//                    avgNormal = avgNormal + vN;
+//
+//
+//                if (Vector::dotProduct(vN, avgNormal) >= 0) {
+//
+//                    float nL = vN.length();
+//
+//                    if (nL > 0) {
+//                        avgNormal = avgNormal + vN;
+//                        avgNormal = avgNormal / nL;
+//                        avgNormal = avgNormal / k; // Average Adjacent Normals
+//                    }
+//
+//                } else {
+//                    vN.x *= -1;
+//                    vN.y *= -1;
+//                    vN.z *= -1;
+//                    float nL = vN.length();
+//
+//                    if (nL > 0) {
+//                        avgNormal = avgNormal + vN;
+//                        avgNormal = avgNormal / nL;
+//                        avgNormal = avgNormal / k; // Average Adjacent Normals
+//                    }
+//                }
+
             }//If Vertex is element of Triangle Edge          
         }//In each Triangle Tuple
 
+        
+        //Vector temp= {o.VList[i].xyz[0][0], o.VList[i].xyz[0][0], o.VList[i].xyz[0][0]};
+        //avgNormal = temp + avgNormal;
+        
+        Vector::normalize(avgNormal);
+        cout << "\nNORMALIZED VECTOR ==" << avgNormal;
+        
+        
         k = 0; // Reset for New Vertex
         o.NormVecList[i] = avgNormal;
         avgNormal.x = avgNormal.y = avgNormal.z = 0;
@@ -144,7 +169,7 @@ void calculateIntensity(Object &o, Light &lfx)
 
         cout << "\n******* VIEWPORT @ index = " << i << "**************\n";
         if (i == 0) {
-            Vector fp(0, 0, (-1 * lfx.f));
+            Vector fp(0, 0, (-1.0 * lfx.f));
 
             for (v = 0; v < o.VList.size(); v++) {
                 o.Ip0[v] = Phong(o, fp, lfx, v);
@@ -152,7 +177,7 @@ void calculateIntensity(Object &o, Light &lfx)
 
         }//GeneralViewport
         else if (i == 1) {
-            Vector fp((-1 * lfx.f), lfx.K, lfx.K);
+            Vector fp((-1.0 * lfx.f), lfx.K, lfx.K);
 
             for (v = 0; v < o.VList.size(); v++) {
                 o.Ip1[v] = Phong(o, fp, lfx, v);
@@ -160,7 +185,7 @@ void calculateIntensity(Object &o, Light &lfx)
 
         }//YZ Viewport
         else if (i == 2) {
-            Vector fp(lfx.K, (-1 * lfx.f), lfx.K);
+            Vector fp(lfx.K, (-1.0 * lfx.f), lfx.K);
 
             for (v = 0; v < o.VList.size(); v++) {
                 o.Ip2[v] = Phong(o, fp, lfx, v);
@@ -168,7 +193,7 @@ void calculateIntensity(Object &o, Light &lfx)
 
         }//XZ Viewport
         else if (i == 3) {
-            Vector fp(lfx.K, lfx.K, (-1 * lfx.f));
+            Vector fp(lfx.K, lfx.K, (-1.0 * lfx.f));
 
             for (v = 0; v < o.VList.size(); v++) {
                 o.Ip3[v] = Phong(o, fp, lfx, v);
@@ -220,166 +245,165 @@ Vector Phong(Object &o, Vector &fp, Light &lfx, int v)
 
     Vout = v0 + v1;
 
-    //Vector::normalize(Vout);
-    if(Vout.x < 0)
-        //Vout.x = Vout.y = Vout.z = 1;
     cout << "\nOutput Phong Vector @ index = " << v << "\n";
     cout << Vout;
 
     return Vout;
 }
 
-void fill_triangles(std::vector<Vector> &Ip, Object &obj, touple_t &TList, int ViewPort, int NMode)
-{   
+void fill_triangles(std::vector<Vector> &Ip, Object &obj, touple_t &TList, int ViewPort, int NMode, float w, float h)
+{
     //project triangle into pixel space
-    vpt v1,v2,v3;
-    project(ViewPort,TList,v1,v2,v3, Ip);
-    
+    vpt v1, v2, v3;
+    project(ViewPort, TList, v1, v2, v3, Ip);
+
     VP = ViewPort;
     N = NMode;
-    
-    if(N){
-        stepy = stepx = 0.01;
-    }
-    else
-        stepy = stepx = 0.001;
-    
+    gridW = w;
+    gridH = h;
+
+    if (N) {
+        stepy = stepx = 3.0;
+    } else
+        stepy = stepx = 1.0;
+
     //create edges, make sure that the points are sorted
     //by there y values
     edge e1;
-    if(v1.y < v2.y )
-        e1 = {v1,v2,0,0,0,0};
+    if (v1.y < v2.y)
+        e1 = {v1, v2, 0, 0, 0, 0};
     else
-        e1 = {v2,v1,0,0,0,0};
+        e1 = {v2, v1, 0, 0, 0, 0};
 
     edge e2;
-    if(v1.y < v3.y)
-        e2 = {v1,v3,0,0,0,0};
+    if (v1.y < v3.y)
+        e2 = {v1, v3, 0, 0, 0, 0};
     else
-        e2 = {v3,v1,0,0,0,0};
+        e2 = {v3, v1, 0, 0, 0, 0};
 
     edge e3;
-    if(v2.y < v3.y)
-        e3 = {v2,v3,0,0,0,0};
+    if (v2.y < v3.y)
+        e3 = {v2, v3, 0, 0, 0, 0};
     else
-        e3 = {v3,v2,0,0,0,0};
-       
+        e3 = {v3, v2, 0, 0, 0, 0};
+
     //intersect edges
-    scanline_edges(e1,e2);
-    scanline_edges(e1,e3);
-    scanline_edges(e2,e3);
-     
+    scanline_edges(e1, e2);
+    scanline_edges(e1, e3);
+    scanline_edges(e2, e3);
+
 }
 
 //assumes e*.p1.y <= e*.p2.y
-void scanline_edges(const edge &e1, const edge &e2){
-    if(e1.p1.y == e1.p2.y){//parallel line test
-        render_scanline(e1.p1.y,e1.p1.x,e1.p2.x);
+
+void scanline_edges(const edge &e1, const edge &e2)
+{
+    if (e1.p1.y == e1.p2.y) {//parallel line test
+        render_scanline(e1.p1.y, e1.p1.x, e1.p2.x);
         return;
     }
-    if(e2.p1.y == e2.p2.y){//parallel line test
-        render_scanline(e2.p2.y,e2.p1.x,e2.p2.x);
+    if (e2.p1.y == e2.p2.y) {//parallel line test
+        render_scanline(e2.p2.y, e2.p1.x, e2.p2.x);
         return;
     }
 
-    float ymin = max(e1.p1.y,e2.p1.y);
-    float ymax = min(e1.p2.y,e2.p2.y);
+    float ymin = max(e1.p1.y, e2.p1.y);
+    float ymax = min(e1.p2.y, e2.p2.y);
     //scan from bottom to top of edges
-    for(float y = ymin; y <= ymax; y+=stepy){
-        float x1,x2; //intersection points
-        intersect_edge(y,e1,x1,IL,I1,I2);
-        intersect_edge(y,e2,x2,IR,I1,I3);
-        if(x1 < x2)
-           render_scanline(y,x1,x2);
+    for (float y = ymin; y <= ymax; y += stepy) {
+        float x1, x2; //intersection points
+        intersect_edge(y, e1, x1, IL, I1, I2);
+        intersect_edge(y, e2, x2, IR, I1, I3);
+        if (x1 < x2)
+            render_scanline(y, x1, x2);
         else
-           render_scanline(y,x2,x1);
+            render_scanline(y, x2, x1);
     }
 
 }
 
 //assumes e1 isn't parallel to the x axis
 //could do interpolation on the edge here as well and return the color intensity
-bool intersect_edge(float scany, const edge& e, float &x_int, Vector &I, Vector &V1, Vector &V2){
-    if(e.p2.y==e.p1.y) return false;//parallel lines (0 or inf intersection points)
-     x_int = (scany-e.p1.y)*(e.p2.x-e.p1.x)/(e.p2.y-e.p1.y)+e.p1.x;
-     
-     
-     I = { (V1.x * ((scany - e.n2.x)/(e.length()))) + (V2.x * ((e.n1.x - scany)/(e.length()))), 
-           (V1.y * ((scany - e.n2.y)/(e.length()))) + (V2.y * ((e.n1.y - scany)/(e.length()))),
-           (V1.z * ((scany - e.n2.z)/(e.length()))) + (V2.z * ((e.n1.z - scany)/(e.length())))
-         };
-     
-     if(I.x < 0){
-         //I.x = I.y = I.z = abs(I.x);
-     }
-     //cout << "\nI == \n" << I << "\n******************"; 
-     //IF NEGATIVE SET TO ZERO 0
-             
-     return true;
+
+bool intersect_edge(float scany, const edge& e, float &x_int, Vector &I, Vector &V1, Vector &V2)
+{
+    if (e.p2.y == e.p1.y) return false; //parallel lines (0 or inf intersection points)
+    x_int = (scany - e.p1.y)*(e.p2.x - e.p1.x) / (e.p2.y - e.p1.y) + e.p1.x;
+
+    cout << "\n*******ratio == " << ((scany - e.p2.x) / (e.length())) << "*********\n";
+    
+    I = {(V1.x * ((scany - e.p2.x) / (e.length()))) + (V2.x * ((e.p1.x - scany) / (e.length()))),
+        (V1.y * ((scany - e.p2.y) / (e.length()))) + (V2.y * ((e.p1.y - scany) / (e.length()))),
+        (V1.z * ((scany - e.p2.z) / (e.length()))) + (V2.z * ((e.p1.z - scany) / (e.length())))};
+
+    //    cout << "\n*******IL == " << IL << "*********\n";
+    //    cout << "\n*******IR == " << IR << "*********\n";
+
+
+    return true;
 }
 
 //could include intensity values and use those to interpolate here
-void render_scanline(float y, float x1, float x2){
-    float py= y;
-    float px= x1;
-    
-    Vector Len = IR - IL;
-    float length = Len.length();
-    
-    Ic = { (IL.x * ((IR.x - px)/(IR.x - IL.x))) + (IR.x * ((px - IL.x)/(IR.x - IL.x))), 
-           (IL.y * ((IR.y - px)/(IR.y - IL.y))) + (IR.y * ((px - IL.y)/(IR.y - IL.y))),
-           (IL.z * ((IR.z - px)/(IR.z - IL.z))) + (IR.z * ((px - IL.z)/(IR.z - IL.z)))    
-    };
-    //cout << "\nIc == \n" << Ic << "\n******************";
-    
-//    float len = sqrt((x2-x1)*(x2-x1));
-//    float delta = (px)/len;
-//    
-//    Ic = {(1-delta)*IL.x + delta*IR.x,
-//            0,
-//            0    
-//    };
-//    
-    for(px; px < x2; px += stepx)
-        draw_pix(px,py,Ic.x);
+
+void render_scanline(float y, float x1, float x2)
+{
+
+    int py = (int) floor(y);
+    int px = (int) floor(x1);
+
+
+    Ic = {(IL.x * ((IR.x - px) / (IR.x - IL.x))) + (IR.x * ((px - IL.x) / (IR.x - IL.x))),
+        (IL.y * ((IR.y - px) / (IR.y - IL.y))) + (IR.y * ((px - IL.y) / (IR.y - IL.y))),
+        (IL.z * ((IR.z - px) / (IR.z - IL.z))) + (IR.z * ((px - IL.z) / (IR.z - IL.z)))};
+
+
+    Ic.x = Ic.x / gridW;
+        cout << "\n*******Ic == " << Ic << "*********\n";
+        cout << "\n*******IL == " << IL << "*********\n";
+        cout << "\n*******IR == " << IR << "*********\n";
+
+    for (px; px < x2; px += stepx)
+        draw_pix(px, py, Ic.x);
 }
 
 
 //projects into pixel/framebuffer space
-void project(int ViewPort, touple_t &TList, vpt &v0, vpt &v1, vpt &v2, std::vector<Vector> &Ip){
+
+void project(int ViewPort, touple_t &TList, vpt &v0, vpt &v1, vpt &v2, std::vector<Vector> &Ip)
+{
     v0.x = TList.p1.xyz[0][0];
     v0.y = TList.p1.xyz[1][0];
     v0.z = TList.p1.xyz[2][0];
-    
+
     v1.x = TList.p2.xyz[0][0];
     v1.y = TList.p2.xyz[1][0];
     v1.z = TList.p2.xyz[2][0];
-    
+
     v2.x = TList.p3.xyz[0][0];
     v2.y = TList.p3.xyz[1][0];
     v2.z = TList.p3.xyz[2][0];
 
-    switch(ViewPort){
+    switch (ViewPort) {
     case 1:
-        v0 = {v0.y,v0.z,0.0};
-        v1 = {v1.y,v1.z,0.0};
-        v2 = {v2.y,v2.z,0.0};
+        v0 = {v0.y, v0.z, 0.0};
+        v1 = {v1.y, v1.z, 0.0};
+        v2 = {v2.y, v2.z, 0.0};
         I1 = {Ip[TList.p1.id].y, Ip[TList.p1.id].z, 0};
         I2 = {Ip[TList.p2.id].y, Ip[TList.p2.id].z, 0};
         I3 = {Ip[TList.p3.id].y, Ip[TList.p3.id].z, 0};
         break;
     case 2:
-        v0 = {v0.x,v0.z,0.0};
-        v1 = {v1.x,v1.z,0.0};
-        v2 = {v2.x,v2.z,0.0};
+        v0 = {v0.x, v0.z, 0.0};
+        v1 = {v1.x, v1.z, 0.0};
+        v2 = {v2.x, v2.z, 0.0};
         I1 = {Ip[TList.p1.id].x, Ip[TList.p1.id].z, 0};
         I2 = {Ip[TList.p2.id].x, Ip[TList.p2.id].z, 0};
         I3 = {Ip[TList.p3.id].x, Ip[TList.p3.id].z, 0};
         break;
     case 3:
-        v0 = {v0.x,v0.y,0.0};
-        v1 = {v1.x,v1.y,0.0};
-        v2 = {v2.x,v2.y,0.0};
+        v0 = {v0.x, v0.y, 0.0};
+        v1 = {v1.x, v1.y, 0.0};
+        v2 = {v2.x, v2.y, 0.0};
         I1 = {Ip[TList.p1.id].x, Ip[TList.p1.id].y, 0};
         I2 = {Ip[TList.p2.id].x, Ip[TList.p2.id].y, 0};
         I3 = {Ip[TList.p3.id].x, Ip[TList.p3.id].y, 0};
@@ -388,8 +412,72 @@ void project(int ViewPort, touple_t &TList, vpt &v0, vpt &v1, vpt &v2, std::vect
         cout << "This shouldn't happen\n";
         exit(0);
     }
+
+    //scale/translate into pixel/framebuffer space
+    v0.x = (v0.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
+    v0.y = (v0.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
+    v1.x = (v1.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
+    v1.y = (v1.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
+    v2.x = (v2.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
+    v2.y = (v2.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
+
+    I1.x = (I1.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
+    I1.y = (I1.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
+    I2.x = (I2.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
+    I2.y = (I2.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
+    I3.x = (I3.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
+    I3.y = (I3.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
+
+
 }
 
-bool clip_test(int x, int y){
+bool clip_test(int x, int y)
+{
     return x >= 0 && x < 100 && y >= 0 && y < 100;
+}
+
+void sortZ(vector<touple_t> &TList)
+{
+
+    int i;
+    float max = TList[0].p1.xyz[2][0];
+
+    for (i = 0; i < TList.size(); i++) {
+
+        if (max < TList[i].p1.xyz[2][0])
+            max = TList[i].p1.xyz[2][0];
+        if (max < TList[i].p2.xyz[2][0])
+            max = TList[i].p2.xyz[2][0];
+        if (max < TList[i].p3.xyz[2][0])
+            max = TList[i].p3.xyz[2][0];
+
+        TList[i].max = max;
+        max = -1;
+    }//Assign Max Depth to each Set
+
+    for (i = 0; i < TList.size(); i++) {
+
+        cout << "BEFORE SORT:\n\n" << "MAX = \n " << TList[i].max << " Index = " << i <<" \n"
+                << TList[i].p1 << TList[i].p2 << TList[i].p3 << "\n";
+    }//Assign Max Depth to each Set
+
+
+    sort(TList.begin(), TList.end(), comparator);
+
+    for (i = 0; i < TList.size(); i++) {
+
+        cout << "AFTER SORT:\n\n" << "MAX = \n " << TList[i].max << " Index = " << i <<  " \n"
+                << TList[i].p1 << TList[i].p2 << TList[i].p3 << "\n";
+    }//Assign Max Depth to each Set
+
+
+}
+
+bool comparator(touple_t i, touple_t j)
+{
+
+    if (i.max > j.max)
+        return true;
+
+    return false;
 }

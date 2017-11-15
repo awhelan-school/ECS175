@@ -88,12 +88,12 @@ int main(int argc, char **argv)
 {
 
     readFile(Objects, lfx);
-
+    //sortZ(Objects[1].TList);
 
     options_width = 16;
     //the number of pixels in the grid
-    grid_width = 128;
-    grid_height = 128;
+    grid_width = 800;
+    grid_height = 800;
 
     //the size of pixels sets the inital window height and width
     //don't make the pixels too large or the screen size will be larger than
@@ -220,7 +220,7 @@ void display()
 
             for (k = 0; k < Objects.size(); k++) {
                 for (n = 0; n < Objects[k].TList.size(); n++) {
-                    fill_triangles(Objects[k].Ip1, Objects[k], Objects[k].TList[n], 1);
+                    //fill_triangles(Objects[k].Ip1, Objects[k], Objects[k].TList[n], 1, NMode, grid_width, grid_height);
                 }
             }//Raster_Triangles
             
@@ -240,7 +240,7 @@ void display()
 
             for (k = 0; k < Objects.size(); k++) {
                 for (n = 0; n < Objects[k].TList.size(); n++) {
-                    fill_triangles(Objects[k].Ip2, Objects[k], Objects[k].TList[n], 2);
+                    //fill_triangles(Objects[k].Ip2, Objects[k], Objects[k].TList[n], 2, NMode, grid_width, grid_height);
                 }
             }//Raster_Triangles
             
@@ -259,8 +259,9 @@ void display()
             draw_lines();
 
             for (k = 0; k < Objects.size(); k++) {
+                //sortZ(Objects[k].TList);
                 for (n = 0; n < Objects[k].TList.size(); n++) {
-                    fill_triangles(Objects[k].Ip3, Objects[k], Objects[k].TList[n], 3, NMode);
+                    //fill_triangles(Objects[k].Ip3, Objects[k], Objects[k].TList[n], 3, NMode, grid_width, grid_height);
                 }
             }//Raster_Triangles
             
@@ -317,7 +318,7 @@ void draw_lines()
             //Draw Rotation Lines
             glColor3f(1.0, 0.07, 0.57);
             glVertex3f(f.x, f.y, f.z);
-            glVertex3f(f.x + t.x, f.y + t.y, f.z + t.z);
+            glVertex3f(f.x + t.x, f.y + t.y, f.x + t.z);
             glEnd();
         }
     }//DrawNormals

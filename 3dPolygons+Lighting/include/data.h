@@ -23,6 +23,7 @@ typedef struct point{
     
     int id;
     float xyz[4][1] = { {0}, {0}, {0}, {1} };
+    Vector normal;
     
     inline friend std::ostream& operator<< (std::ostream& out, const point &p){
     
@@ -48,6 +49,8 @@ typedef struct{
 
 typedef struct{
     Point p1,p2,p3;
+    float max;
+    Vector normal;
 }touple_t;
 
 typedef struct{
@@ -114,7 +117,7 @@ void calculateNormalV(Object &o);
 void UpdateTList(std::vector<Object> &o, int &OID);
 Vector Phong(Object &o, Vector &fp, Light &lfx, int v);
 
-void fill_triangles(std::vector<Vector> &Ip, Object &obj, touple_t &TList, int ViewPort, int NMode=0);
+void fill_triangles(std::vector<Vector> &Ip, Object &obj, touple_t &TList, int ViewPort, int NMode, float w, float h);
 
 void scanline_edges(const edge &e1, const edge &e2);
 bool intersect_edge(float scany, const edge& e, float &x_int, Vector &I, Vector &V1, Vector &V2);
@@ -122,6 +125,9 @@ void render_scanline(float y, float x1, float x2);
 void project(int ViewPort, touple_t &TList, vpt &v0, vpt &v1, vpt &v2, std::vector<Vector> &Ip);
 void draw_pix(float x, float y, float Ic);       
 bool clip_test(int x, int y);
+
+void sortZ(std::vector<touple_t> &TList);
+bool comparator(touple_t i, touple_t j);
 
 #endif /* DATA_H */
 
