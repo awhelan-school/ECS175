@@ -210,17 +210,17 @@ void display()
             glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
             glLoadIdentity(); // Reset The Projection Matrix
             // Set Up Ortho Mode To Fit 1/4 The Screen (Size Of A Viewport)
-            gluOrtho2D(0.0, 1.0, 0.0, 1.0);
+            glOrtho(0.0, 1.0, 0.0, 1.0, -1, 1);
           
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
             //gluLookAt(0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
-            draw_lines();
+            //draw_lines();
 
             for (k = 0; k < Objects.size(); k++) {
                 for (n = 0; n < Objects[k].TList.size(); n++) {
-                    //fill_triangles(Objects[k].Ip1, Objects[k], Objects[k].TList[n], 1, NMode, grid_width, grid_height);
+                    fill_triangles(Objects[k].Ip1, Objects[k], Objects[k].TList[n], 1, NMode, grid_width, grid_height);
                 }
             }//Raster_Triangles
             
@@ -236,11 +236,11 @@ void display()
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
             //gluLookAt(0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0);
-            draw_lines();
+            //draw_lines();
 
             for (k = 0; k < Objects.size(); k++) {
                 for (n = 0; n < Objects[k].TList.size(); n++) {
-                    //fill_triangles(Objects[k].Ip2, Objects[k], Objects[k].TList[n], 2, NMode, grid_width, grid_height);
+                    fill_triangles(Objects[k].Ip2, Objects[k], Objects[k].TList[n], 2, NMode, grid_width, grid_height);
                 }
             }//Raster_Triangles
             
@@ -251,12 +251,12 @@ void display()
             glViewport(1, 1, (win_width / 2) - 1, (win_height / 2) - 1);      
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();       
-            gluOrtho2D(0.0, 1.0, 0.0, 1.0);
+            glOrtho(0.0, 1.0, 0.0, 1.0, -1, 1);
 
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
                     
-            draw_lines();
+            //draw_lines();
 
             for (k = 0; k < Objects.size(); k++) {
                 //sortZ(Objects[k].TList);

@@ -6,10 +6,10 @@ CC = /usr/bin/g++ -std=c++11
 #OPENGL LIBS FOR WIN
 #GLLIB := -L/usr/lib/ -lopengl32 -lglu32 -lfreeglut
 #OPENGL LIBS FOR LINUX
-#GLLIB :=  -lGL -lGLEW -lGLU -lglut
+GLLIB :=  -lGL -lGLEW -lGLU -lglut
 #OPENGL LIBS FOR MAC
-W  += -Wno-deprecated
-GLLIB := -framework OpenGL -framework GLUT 
+#W  += -Wno-deprecated
+#GLLIB := -framework OpenGL -framework GLUT 
 
 #COMPILER FLAGS
 CCFLAGS :=

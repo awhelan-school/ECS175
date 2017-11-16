@@ -6,7 +6,7 @@ int VP = 0;
 int N;
 
 //map this square to the framebuffer when projecting
-vpt min_vbox = {-1.0, -1.0, 0.0};
+vpt min_vbox = {0.0, 0.0, 0.0};
 vpt max_vbox = {1.0, 1.0, 0.0};
 
 
@@ -29,8 +29,8 @@ void draw_pix(float x, float y, float Ic)
     x = (float) ((x - min_vbox.x)*(max_vbox.x - min_vbox.x) / gridW);
     y = (float) ((y - min_vbox.y)*(max_vbox.y - min_vbox.y) / gridH);
 
-    x -= 1.0;
-    y -= 1.0;
+    //x -= 1.0;
+    //y -= 1.0;
 
     if (!clip_test(x, y))return;
 
@@ -41,9 +41,9 @@ void draw_pix(float x, float y, float Ic)
     if (VP == 3)
         glVertex3f(x, y, 0);
     else if (VP == 2)
-        glVertex3f(x, 0, y);
+        glVertex3f(x, y, 0);
     else if (VP == 1)
-        glVertex3f(0, x, y);
+        glVertex3f(x, y, 0);
 
     glEnd();
 }
@@ -86,11 +86,11 @@ void calculateNormalV(Object &o)
 
     Vector avgNormal(0, 0, 0);
     Vector Normal(1, 1, 1);
-    
+
     int k = 0; // Adjacent Vectors
 
     for (int i = 0; i < o.VList.size(); i++) {
- 
+
         for (int j = 0; j < o.TList.size(); j++) {
 
             if (o.VList[i].id == o.TList[j].p1.id || o.VList[i].id == o.TList[j].p2.id || o.VList[i].id == o.TList[j].p3.id) {
@@ -104,56 +104,57 @@ void calculateNormalV(Object &o)
                 Vector v0(p0.xyz[0][0], p0.xyz[1][0], p0.xyz[2][0]);
                 Vector v1(p1.xyz[0][0], p1.xyz[1][0], p1.xyz[2][0]);
                 Vector v2(p2.xyz[0][0], p2.xyz[1][0], p2.xyz[2][0]);
-                
+
 
                 Vector N = v1 - v0;
                 Vector M = v2 - v0;
 
                 Vector vN = Vector::crossProduct(N, M);
                 avgNormal = avgNormal + vN;
-                
-//                if (vN.length()) {
-//                    Vector::normalize(vN);
-//                }
-//
-//                if (k == 1)
-//                    avgNormal = avgNormal + vN;
-//
-//
-//                if (Vector::dotProduct(vN, avgNormal) >= 0) {
-//
-//                    float nL = vN.length();
-//
-//                    if (nL > 0) {
-//                        avgNormal = avgNormal + vN;
-//                        avgNormal = avgNormal / nL;
-//                        avgNormal = avgNormal / k; // Average Adjacent Normals
-//                    }
-//
-//                } else {
-//                    vN.x *= -1;
-//                    vN.y *= -1;
-//                    vN.z *= -1;
-//                    float nL = vN.length();
-//
-//                    if (nL > 0) {
-//                        avgNormal = avgNormal + vN;
-//                        avgNormal = avgNormal / nL;
-//                        avgNormal = avgNormal / k; // Average Adjacent Normals
-//                    }
-//                }
+                avgNormal = avgNormal / k; // Average Adjacent Normals
+
+                //                if (vN.length()) {
+                //                    Vector::normalize(vN);
+                //                }
+                //
+                //                if (k == 1)
+                //                    avgNormal = avgNormal + vN;
+                //
+                //
+                //                if (Vector::dotProduct(vN, avgNormal) >= 0) {
+                //
+                //                    float nL = vN.length();
+                //
+                //                    if (nL > 0) {
+                //                        avgNormal = avgNormal + vN;
+                //                        avgNormal = avgNormal / nL;
+                //                        avgNormal = avgNormal / k; // Average Adjacent Normals
+                //                    }
+                //
+                //                } else {
+                //                    vN.x *= -1;
+                //                    vN.y *= -1;
+                //                    vN.z *= -1;
+                //                    float nL = vN.length();
+                //
+                //                    if (nL > 0) {
+                //                        avgNormal = avgNormal + vN;
+                //                        avgNormal = avgNormal / nL;
+                //                        avgNormal = avgNormal / k; // Average Adjacent Normals
+                //                    }
+                //                }
 
             }//If Vertex is element of Triangle Edge          
         }//In each Triangle Tuple
 
-        
+
         //Vector temp= {o.VList[i].xyz[0][0], o.VList[i].xyz[0][0], o.VList[i].xyz[0][0]};
         //avgNormal = temp + avgNormal;
-        
+
+        cout << "\nK value for index ==" << i << " =====>>> " << k;
         Vector::normalize(avgNormal);
         cout << "\nNORMALIZED VECTOR ==" << avgNormal;
-        
-        
+
         k = 0; // Reset for New Vertex
         o.NormVecList[i] = avgNormal;
         avgNormal.x = avgNormal.y = avgNormal.z = 0;
@@ -213,12 +214,13 @@ Vector Phong(Object &o, Vector &fp, Light &lfx, int v)
     float ks = o.mat.Ks.x;
     int n = o.mat.n;
     Point p = o.VList[v];
+      
 
     Vector vp(p.xyz[0][0], p.xyz[1][0], p.xyz[2][0]); // Vertex Position
     Vector vn = o.NormVecList[v]; // Normal Vector
     Vector vx(lfx.src.x, lfx.src.y, lfx.src.z); // Light Source Position
 
-
+   
     Vector vv = fp - vp;
     Vector::normalize(vv);
 
@@ -243,7 +245,7 @@ Vector Phong(Object &o, Vector &fp, Light &lfx, int v)
 
     v1 = v1 * s3;
 
-    Vout = v0;
+    Vout = v0 + v1;
 
     cout << "\nOutput Phong Vector @ index = " << v << "\n";
     cout << Vout;
@@ -259,6 +261,8 @@ void fill_triangles(std::vector<Vector> &Ip, Object &obj, touple_t &TList, int V
 
     IR.x = IR.y = IR.z = 0;
     IL.x = IL.y = IL.z = 0;
+    Ic.x = Ic.y = Ic.z = 0;
+
     VP = ViewPort;
     N = NMode;
     gridW = w;
@@ -329,28 +333,13 @@ void scanline_edges(const edge &e1, const edge &e2)
 
 bool intersect_edge(float scany, const edge& e, float &x_int, Vector &I, Vector &V1, Vector &V2)
 {
-    if (e.p2.y == e.p1.y) return false; //parallel lines (0 or inf intersection points)
-    x_int = (scany - e.p1.y)*(e.p2.x - e.p1.x) / (e.p2.y - e.p1.y) + e.p1.x;
 
-    //cout << "\n*******ratio == " << ((scany - e.p2.x) / (e.length())) << "*********\n";
-    
-    cout << "\n*******V1 == " << V1 << "*********\n";
-    cout << "\n*******V2 == " << V2 << "*********\n";
-    
-    cout << "Y ====>>>>  " << e.p2.y << "\n";
-    cout << "scany ====>>>>  " << scany << "\n";
-    cout << "Length ====>>>>  " << (e.length()) << "\n";
-    
-    cout << "Ratio SUM ====>>>>  " << abs((scany - e.p2.y) / (e.p1.y - e.p2.y)) + abs((e.p1.y - scany) / (e.p1.y - e.p2.y)) << "\n";
-    
-    I = {(V1.x * abs((scany - e.p2.y) / (e.p1.y - e.p2.y)) ) + (V2.x * abs((e.p1.y - scany) / (e.p1.y - e.p2.y))),
+    I = {(V1.x * ((scany - e.p2.y) / (e.p1.y - e.p2.y))) + (V2.x * ((e.p1.y - scany) / (e.p1.y - e.p2.y))),
         0,
         0};
 
-        cout << "\n*******IL == " << IL << "*********\n";
-        cout << "\n*******IR == " << IR << "*********\n";
-
-
+    if (e.p2.y == e.p1.y) return false; //parallel lines (0 or inf intersection points)
+    x_int = (scany - e.p1.y)*(e.p2.x - e.p1.x) / (e.p2.y - e.p1.y) + e.p1.x;
     return true;
 }
 
@@ -363,23 +352,16 @@ void render_scanline(float y, float x1, float x2)
     int px = (int) floor(x1);
 
 
-    cout << "PX == " << px << "\n";
-    float fx = (px/(gridW/2) - 1.0);
-    cout << "FX == " << fx << "\n";
-    
-    Ic = {(IL.x * ((IR.x - fx) / (IR.x - IL.x))) + (IR.x * ((fx - IL.x) / (IR.x - IL.x))),
-           0,
-           0
-         };
+    for (px; px < x2; px += stepx) {
 
+        float delta = (x2 - px) / (x2 - x1);
 
-    Ic.x = (Ic.x / (gridW/2) - 1);
-        cout << "\n*******Ic == " << Ic << "*********\n";
-//        cout << "\n*******IL == " << IL << "*********\n";
-//        cout << "\n*******IR == " << IR << "*********\n";
+        Ic = {((IL.x * (1 - delta)) + (IR.x * (delta))), 0, 0};
+        //cout << "\n*******Ic == " << Ic << "*********\n";
 
-    for (px; px < x2; px += stepx)
         draw_pix(px, py, Ic.x);
+    }
+
 }
 
 
@@ -428,7 +410,7 @@ void project(int ViewPort, touple_t &TList, vpt &v0, vpt &v1, vpt &v2, std::vect
         cout << "This shouldn't happen\n";
         exit(0);
     }
-    
+
 
     //scale/translate into pixel/framebuffer space
     v0.x = (v0.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
@@ -438,12 +420,12 @@ void project(int ViewPort, touple_t &TList, vpt &v0, vpt &v1, vpt &v2, std::vect
     v2.x = (v2.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
     v2.y = (v2.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
 
-//    I1.x = (I1.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
-//    I1.y = (I1.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
-//    I2.x = (I2.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
-//    I2.y = (I2.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
-//    I3.x = (I3.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
-//    I3.y = (I3.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
+    //    I1.x = (I1.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
+    //    I1.y = (I1.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
+    //    I2.x = (I2.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
+    //    I2.y = (I2.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
+    //    I3.x = (I3.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
+    //    I3.y = (I3.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
 
 
 }
@@ -474,7 +456,7 @@ void sortZ(vector<touple_t> &TList)
 
     for (i = 0; i < TList.size(); i++) {
 
-        cout << "BEFORE SORT:\n\n" << "MAX = \n " << TList[i].max << " Index = " << i <<" \n"
+        cout << "BEFORE SORT:\n\n" << "MAX = \n " << TList[i].max << " Index = " << i << " \n"
                 << TList[i].p1 << TList[i].p2 << TList[i].p3 << "\n";
     }//Assign Max Depth to each Set
 
@@ -483,7 +465,7 @@ void sortZ(vector<touple_t> &TList)
 
     for (i = 0; i < TList.size(); i++) {
 
-        cout << "AFTER SORT:\n\n" << "MAX = \n " << TList[i].max << " Index = " << i <<  " \n"
+        cout << "AFTER SORT:\n\n" << "MAX = \n " << TList[i].max << " Index = " << i << " \n"
                 << TList[i].p1 << TList[i].p2 << TList[i].p3 << "\n";
     }//Assign Max Depth to each Set
 
