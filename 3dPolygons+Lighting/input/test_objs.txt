@@ -1,10 +1,13 @@
 1
 
 2                            #material id for object 2
-3                            #number of vertices for object 2
+4                            #number of vertices for object 2
 0.375 0.375 0.625
 0.625 0.375 0.625
 0.375 0.625 0.625
+0.625 0.625 0.625
 
-1                           #tri index for project 2
+2                         #tri index for project 2
 1 2 3
+3 2 4
+

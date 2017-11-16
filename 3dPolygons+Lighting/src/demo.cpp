@@ -140,7 +140,7 @@ int main(int argc, char **argv)
 void init()
 {
     //set clear color (Default background to white)
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glClearColor(1.0, 1.0, 1.0, 0.0);
     //checks for OpenGL errors
     check();
 }
@@ -214,7 +214,7 @@ void display()
           
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
-            gluLookAt(0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+            //gluLookAt(0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
             draw_lines();
 
@@ -235,7 +235,7 @@ void display()
  
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
-            gluLookAt(0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0);
+            //gluLookAt(0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0);
             draw_lines();
 
             for (k = 0; k < Objects.size(); k++) {
@@ -248,7 +248,7 @@ void display()
         if (i == 3) {
             
             //glLoadIdentity();
-            glViewport(1, 1, (win_width / 2) - 11, (win_height / 2) - 11);      
+            glViewport(1, 1, (win_width / 2) - 1, (win_height / 2) - 1);      
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();       
             gluOrtho2D(0.0, 1.0, 0.0, 1.0);
@@ -261,7 +261,7 @@ void display()
             for (k = 0; k < Objects.size(); k++) {
                 //sortZ(Objects[k].TList);
                 for (n = 0; n < Objects[k].TList.size(); n++) {
-                    //fill_triangles(Objects[k].Ip3, Objects[k], Objects[k].TList[n], 3, NMode, grid_width, grid_height);
+                    fill_triangles(Objects[k].Ip3, Objects[k], Objects[k].TList[n], 3, NMode, grid_width, grid_height);
                 }
             }//Raster_Triangles
             

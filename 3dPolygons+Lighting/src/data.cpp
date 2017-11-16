@@ -193,7 +193,7 @@ void calculateIntensity(Object &o, Light &lfx)
 
         }//XZ Viewport
         else if (i == 3) {
-            Vector fp(lfx.K, lfx.K, (-1.0 * lfx.f));
+            Vector fp(lfx.K, lfx.K, (1.0 * lfx.f));
 
             for (v = 0; v < o.VList.size(); v++) {
                 o.Ip3[v] = Phong(o, fp, lfx, v);
@@ -243,7 +243,7 @@ Vector Phong(Object &o, Vector &fp, Light &lfx, int v)
 
     v1 = v1 * s3;
 
-    Vout = v0 + v1;
+    Vout = v0;
 
     cout << "\nOutput Phong Vector @ index = " << v << "\n";
     cout << Vout;
@@ -257,6 +257,8 @@ void fill_triangles(std::vector<Vector> &Ip, Object &obj, touple_t &TList, int V
     vpt v1, v2, v3;
     project(ViewPort, TList, v1, v2, v3, Ip);
 
+    IR.x = IR.y = IR.z = 0;
+    IL.x = IL.y = IL.z = 0;
     VP = ViewPort;
     N = NMode;
     gridW = w;
@@ -330,14 +332,23 @@ bool intersect_edge(float scany, const edge& e, float &x_int, Vector &I, Vector 
     if (e.p2.y == e.p1.y) return false; //parallel lines (0 or inf intersection points)
     x_int = (scany - e.p1.y)*(e.p2.x - e.p1.x) / (e.p2.y - e.p1.y) + e.p1.x;
 
-    cout << "\n*******ratio == " << ((scany - e.p2.x) / (e.length())) << "*********\n";
+    //cout << "\n*******ratio == " << ((scany - e.p2.x) / (e.length())) << "*********\n";
     
-    I = {(V1.x * ((scany - e.p2.x) / (e.length()))) + (V2.x * ((e.p1.x - scany) / (e.length()))),
-        (V1.y * ((scany - e.p2.y) / (e.length()))) + (V2.y * ((e.p1.y - scany) / (e.length()))),
-        (V1.z * ((scany - e.p2.z) / (e.length()))) + (V2.z * ((e.p1.z - scany) / (e.length())))};
+    cout << "\n*******V1 == " << V1 << "*********\n";
+    cout << "\n*******V2 == " << V2 << "*********\n";
+    
+    cout << "Y ====>>>>  " << e.p2.y << "\n";
+    cout << "scany ====>>>>  " << scany << "\n";
+    cout << "Length ====>>>>  " << (e.length()) << "\n";
+    
+    cout << "Ratio SUM ====>>>>  " << abs((scany - e.p2.y) / (e.p1.y - e.p2.y)) + abs((e.p1.y - scany) / (e.p1.y - e.p2.y)) << "\n";
+    
+    I = {(V1.x * abs((scany - e.p2.y) / (e.p1.y - e.p2.y)) ) + (V2.x * abs((e.p1.y - scany) / (e.p1.y - e.p2.y))),
+        0,
+        0};
 
-    //    cout << "\n*******IL == " << IL << "*********\n";
-    //    cout << "\n*******IR == " << IR << "*********\n";
+        cout << "\n*******IL == " << IL << "*********\n";
+        cout << "\n*******IR == " << IR << "*********\n";
 
 
     return true;
@@ -352,15 +363,20 @@ void render_scanline(float y, float x1, float x2)
     int px = (int) floor(x1);
 
 
-    Ic = {(IL.x * ((IR.x - px) / (IR.x - IL.x))) + (IR.x * ((px - IL.x) / (IR.x - IL.x))),
-        (IL.y * ((IR.y - px) / (IR.y - IL.y))) + (IR.y * ((px - IL.y) / (IR.y - IL.y))),
-        (IL.z * ((IR.z - px) / (IR.z - IL.z))) + (IR.z * ((px - IL.z) / (IR.z - IL.z)))};
+    cout << "PX == " << px << "\n";
+    float fx = (px/(gridW/2) - 1.0);
+    cout << "FX == " << fx << "\n";
+    
+    Ic = {(IL.x * ((IR.x - fx) / (IR.x - IL.x))) + (IR.x * ((fx - IL.x) / (IR.x - IL.x))),
+           0,
+           0
+         };
 
 
-    Ic.x = Ic.x / gridW;
+    Ic.x = (Ic.x / (gridW/2) - 1);
         cout << "\n*******Ic == " << Ic << "*********\n";
-        cout << "\n*******IL == " << IL << "*********\n";
-        cout << "\n*******IR == " << IR << "*********\n";
+//        cout << "\n*******IL == " << IL << "*********\n";
+//        cout << "\n*******IR == " << IR << "*********\n";
 
     for (px; px < x2; px += stepx)
         draw_pix(px, py, Ic.x);
@@ -412,6 +428,7 @@ void project(int ViewPort, touple_t &TList, vpt &v0, vpt &v1, vpt &v2, std::vect
         cout << "This shouldn't happen\n";
         exit(0);
     }
+    
 
     //scale/translate into pixel/framebuffer space
     v0.x = (v0.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
@@ -421,12 +438,12 @@ void project(int ViewPort, touple_t &TList, vpt &v0, vpt &v1, vpt &v2, std::vect
     v2.x = (v2.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
     v2.y = (v2.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
 
-    I1.x = (I1.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
-    I1.y = (I1.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
-    I2.x = (I2.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
-    I2.y = (I2.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
-    I3.x = (I3.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
-    I3.y = (I3.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
+//    I1.x = (I1.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
+//    I1.y = (I1.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
+//    I2.x = (I2.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
+//    I2.y = (I2.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
+//    I3.x = (I3.x - min_vbox.x) / (max_vbox.x - min_vbox.x) * gridW;
+//    I3.y = (I3.y - min_vbox.y) / (max_vbox.y - min_vbox.y) * gridH;
 
 
 }
