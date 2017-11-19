@@ -36,8 +36,8 @@ GLfloat angle = 1;
 
 /****set in main()****/
 //the number of pixels in the grid
-int grid_width;
-int grid_height;
+float grid_width;
+float grid_height;
 
 //the size of pixels sets the initial window height and width
 //don't make the pixels too large or the screen size will be larger than
@@ -88,12 +88,11 @@ int main(int argc, char **argv)
 {
 
     readFile(Objects, lfx);
-    //sortZ(Objects[1].TList);
 
     options_width = 16;
     //the number of pixels in the grid
-    grid_width = 800;
-    grid_height = 800;
+    grid_width = 1000;
+    grid_height = 1000;
 
     //the size of pixels sets the inital window height and width
     //don't make the pixels too large or the screen size will be larger than
@@ -140,7 +139,7 @@ int main(int argc, char **argv)
 void init()
 {
     //set clear color (Default background to white)
-    glClearColor(1.0, 1.0, 1.0, 0.0);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
     //checks for OpenGL errors
     check();
 }
@@ -168,9 +167,26 @@ void display()
     //clears the opengl Modelview transformation matrix
     glLoadIdentity();
 
-    /*****DRAW GRID ON SCREEN*******/
+     /*****DRAW GRID ON SCREEN*******/
     //creates a rendering area across the window
-    glViewport(0,0,grid_width*pixel_size,grid_height*pixel_size);
+    glViewport(0,0,win_width,win_height);
+    // up an orthogonal projection matrix so that
+    // the pixel space is mapped to the grid space
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    //map gl ortho so that each pixel is on an integer boundary
+    //we will handle the screen space projection ourselves
+    glOrtho(0,win_width,0,win_height,-1,1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    //draw grid
+    glBegin(GL_LINES);
+        glColor3f(.4,.4,.8);
+        glVertex3f(win_width/2,0,0);
+        glVertex3f(win_width/2,win_height,0);
+        glVertex3f(0,win_height/2,0);
+        glVertex3f(win_width,win_height/2,0);
+    glEnd();
 
     //displayOptions();
 
@@ -210,8 +226,9 @@ void display()
             glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
             glLoadIdentity(); // Reset The Projection Matrix
             // Set Up Ortho Mode To Fit 1/4 The Screen (Size Of A Viewport)
-            glOrtho(0.0, 1.0, 0.0, 1.0, -1, 1);
+            //glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
           
+            glOrtho(0,(grid_width/scale),0,(grid_height/scale),0,1);
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
             //gluLookAt(0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0);
@@ -219,19 +236,22 @@ void display()
             //draw_lines();
 
             for (k = 0; k < Objects.size(); k++) {
+                std::vector<touple_t> sortedList;
+                sortX(Objects[k].TList, sortedList);
                 for (n = 0; n < Objects[k].TList.size(); n++) {
-                    fill_triangles(Objects[k].Ip1, Objects[k], Objects[k].TList[n], 1, NMode, grid_width, grid_height);
+                    //fill_triangles(Objects[k].Ip1, Objects[k], sortedList[n], 1, NMode, grid_width, grid_height);
                 }
             }//Raster_Triangles
             
-        }
+        }//YZ Projection
         if (i == 2) {
       
             //glLoadIdentity();
             glViewport((win_width / 2) + 1, 1, (win_width / 2) - 1, (win_height / 2) - 1);   
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
-            glOrtho(0.0, 1.0, 0.0, 1.0, -1, 1);
+            //glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
+            glOrtho(0,(grid_width/scale),0,(grid_height/scale),0,1);
  
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
@@ -239,19 +259,24 @@ void display()
             //draw_lines();
 
             for (k = 0; k < Objects.size(); k++) {
+                std::vector<touple_t> sortedList;
+                sortY(Objects[k].TList, sortedList);
                 for (n = 0; n < Objects[k].TList.size(); n++) {
-                    fill_triangles(Objects[k].Ip2, Objects[k], Objects[k].TList[n], 2, NMode, grid_width, grid_height);
+                    //fill_triangles(Objects[k].Ip2, Objects[k], sortedList[n], 2, NMode, grid_width, grid_height);
                 }
             }//Raster_Triangles
             
-        }
+        }//XZ Projection
         if (i == 3) {
             
             //glLoadIdentity();
-            glViewport(1, 1, (win_width / 2) - 1, (win_height / 2) - 1);      
+            //glViewport(0,win_height/2+1,win_width/2-1,win_height/2-1);
+            glViewport(0,0,win_width/2-1,win_height/2-1);     
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();       
-            glOrtho(0.0, 1.0, 0.0, 1.0, -1, 1);
+            //glOrtho(0.0, 1.0, 0.0, 1.0, (scale *-1.0), (scale * 1.0) );
+            //glOrtho(0, scale, 0, scale, 0, scale);
+            glOrtho(-1.0,(grid_width/scale),-1.0,(grid_height/scale),-1.0,1);
 
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
@@ -259,13 +284,15 @@ void display()
             //draw_lines();
 
             for (k = 0; k < Objects.size(); k++) {
-                //sortZ(Objects[k].TList);
+                
+                std::vector<touple_t> sortedList;
+                sortZ(Objects[k].TList, sortedList);
                 for (n = 0; n < Objects[k].TList.size(); n++) {
-                    fill_triangles(Objects[k].Ip3, Objects[k], Objects[k].TList[n], 3, NMode, grid_width, grid_height);
+                    fill_triangles(Objects[k].Ip3, Objects[k], sortedList[n], 3, NMode, grid_width, grid_height);
                 }
             }//Raster_Triangles
             
-        }
+        }//XY Projection
     }
 
 
@@ -345,7 +372,7 @@ void drawSegment(Point p0, Point p1, Point p2)
     if (Gselect)
         glColor3f(1.0, 0.0, 0.0);
     else
-        glColor3f(0.0, 0.0, 0.0);
+        glColor3f(1.0, 1.0, 1.0);
     glVertex3f(p0.xyz[0][0], p0.xyz[1][0], p0.xyz[2][0]);
     glVertex3f(p1.xyz[0][0], p1.xyz[1][0], p1.xyz[2][0]);
 
@@ -370,6 +397,9 @@ void reshape(int width, int height)
     //update the ne window width and height
     win_width = width;
     win_height = height;
+    
+    grid_width = width/2;
+    grid_height = height/2;
 
     //creates a rendering area across the window
     //glViewport(0, 0, width, height);

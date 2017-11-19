@@ -8,6 +8,7 @@
 #include "Vector.h"
 
 Vector::Vector() {
+    x = y = z = 0;
 }
 
 Vector::Vector(const Vector& orig) {
@@ -70,7 +71,7 @@ float Vector::length(){
 }
 
 Vector Vector::operator+ (Vector v){
-    Vector out;   
+    Vector out(0,0,0);   
     out.x = x + v.x;
     out.y = y + v.y;
     out.z = z + v.z;
@@ -78,7 +79,7 @@ Vector Vector::operator+ (Vector v){
     
 }
 Vector Vector::operator -(Vector v){
-    Vector out;
+    Vector out(0,0,0);
     out.x = x - v.x;
     out.y = y - v.y;
     out.z = z - v.z;
@@ -86,7 +87,7 @@ Vector Vector::operator -(Vector v){
 }
 
 Vector Vector::operator /(float k){
-    Vector out;
+    Vector out(0,0,0);
     
     out.x = x / k;
     out.y = y / k;
@@ -96,7 +97,7 @@ Vector Vector::operator /(float k){
 }
 
 Vector Vector::operator *(float k){
-    Vector out;
+    Vector out(0,0,0);
     
     out.x = x * k;
     out.y = y * k;
