@@ -270,7 +270,7 @@ void calculateIntensity(Object &o, Light &lfx)
 
     for (int i = 0; i < 4; i++) {
 
-        cout << "\n******* VIEWPORT @ index = " << i << "**************\n";
+        //cout << "\n******* VIEWPORT @ index = " << i << "**************\n";
         if (i == 0) {
             Vector fp(0, 0, (-1.0 * lfx.f));
 
@@ -358,7 +358,7 @@ Vector Phong(Object &o, Vector &fp, Light &lfx, int v)
         Vout.x = Vout.y = Vout.z = 1;
 
 
-    cout << Vout;
+    //cout << Vout;
 
     return Vout;
 }

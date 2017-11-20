@@ -4,7 +4,7 @@ vector<Material> Mat;
 
 std::string inputFile("./input/test_objs.txt");
 
-void readMaterials(){
+void readMaterials(vector<Material> &mat){
     std::ifstream materials("./input/raw/raw_materials.txt", std::ios::in);
     int token;
     
@@ -13,6 +13,7 @@ void readMaterials(){
        // Get # of Materials
        materials >> token;
        Mat.resize(token);
+       mat.resize(token);
        
        for(int k = 0; k < token; k++){
            materials >> Mat[k].Ka.x >> Mat[k].Ka.y >> Mat[k].Ka.z;
@@ -27,6 +28,7 @@ void readMaterials(){
         cout << "Unable to Open File: Materials\n";
     }
     materials.close();
+    mat = Mat;
     
 }
 
@@ -48,14 +50,14 @@ void readLight(Light &lfx){
     lightfx.close();
 }
 
-void readFile(std::vector<Object> &vec, Light &lfx) {
+void readFile(std::vector<Object> &vec, Light &lfx, vector<Material> &mat) {
 
     vec.clear();
 
     getRaw();
     std::ifstream infile("./input/raw/raw_test_objs.txt", std::ios::in);
     readLight(lfx);
-    readMaterials();
+    readMaterials(mat);
     
     std::string token;
     unsigned int objects = 0, vertices = 0, edges = 0;

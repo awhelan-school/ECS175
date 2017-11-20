@@ -7,9 +7,9 @@
 #include <fstream>
 
 
-void readFile(std::vector<Object> &vec, Light &lfx);
+void readFile(std::vector<Object> &vec, Light &lfx, vector<Material> &mat);
 void readLight(Light &lfx);
-void readMaterials();
+void readMaterials(vector<Material> &mat);
 void writeFile(std::vector<Object> &vec);
 void getRaw();
 

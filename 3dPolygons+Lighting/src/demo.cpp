@@ -52,6 +52,7 @@ int options_width;
 
 std::vector<Object> Objects;
 static Light lfx;
+std::vector<Material> mat;
 
 Point RX0, RX1;
 
@@ -60,7 +61,9 @@ GLfloat tx = 0.0, ty = 0.0, tz = 0.0;
 GLfloat scale = 1.0;
 float Sf = 1.0;
 
-int VMode = 0, TMode = 0, SMode = 0, RMode = 0;
+int arrow = 0;
+float inc = 0;
+int VMode = 0, TMode = 0, SMode = 0, RMode = 0, LMode = 0, MMode = 0;
 int CObject = 0;
 bool Gselect;
 bool RotAxis = false;
@@ -84,10 +87,12 @@ void mouse(int button, int state, int x, int y);
 void motion(int x, int y);
 void check();
 
-int main(int argc, char **argv)
-{
+void printLight(int a);
+void printMaterial(int a);
 
-    readFile(Objects, lfx);
+int main(int argc, char **argv) {
+
+    readFile(Objects, lfx, mat);
 
     options_width = 16;
     //the number of pixels in the grid
@@ -136,8 +141,7 @@ int main(int argc, char **argv)
 }
 
 /*initialize gl stufff*/
-void init()
-{
+void init() {
     //set clear color (Default background to white)
     glClearColor(0.0, 0.0, 0.0, 0.0);
     //checks for OpenGL errors
@@ -146,16 +150,15 @@ void init()
 
 //called repeatedly when glut isn't doing anything else
 
-void idle()
-{
+void idle() {
 
     for (int i = 0; i < Objects.size(); i++) {
-        for (int k = 0; k < Objects[i].TList.size(); k++){
-            ;//calculateNormalV(Objects[i]);
-            ;//calculateIntensity(Objects[i], lfx);
-            
+        for (int k = 0; k < Objects[i].TList.size(); k++) {
+            ; //calculateNormalV(Objects[i]);
+            ; //calculateIntensity(Objects[i], lfx);
+
         }
-            
+
     }
 
     //redraw the scene over and over again
@@ -164,43 +167,42 @@ void idle()
 
 //this is where we render the screen
 
-void display()
-{
+void display() {
     //clears the screen
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     //clears the opengl Modelview transformation matrix
     glLoadIdentity();
 
-     /*****DRAW GRID ON SCREEN*******/
+    /*****DRAW GRID ON SCREEN*******/
     //creates a rendering area across the window
-    glViewport(0,0,win_width,win_height);
+    glViewport(0, 0, win_width, win_height);
     // up an orthogonal projection matrix so that
     // the pixel space is mapped to the grid space
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     //map gl ortho so that each pixel is on an integer boundary
     //we will handle the screen space projection ourselves
-    glOrtho(0,win_width,0,win_height,-1,1);
+    glOrtho(0, win_width, 0, win_height, -1, 1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     //draw grid
     glBegin(GL_LINES);
-        glColor3f(.4,.4,.8);
-        glVertex3f(win_width/2,0,0);
-        glVertex3f(win_width/2,win_height,0);
-        glVertex3f(0,win_height/2,0);
-        glVertex3f(win_width,win_height/2,0);
+    glColor3f(.4, .4, .8);
+    glVertex3f(win_width / 2, 0, 0);
+    glVertex3f(win_width / 2, win_height, 0);
+    glVertex3f(0, win_height / 2, 0);
+    glVertex3f(win_width, win_height / 2, 0);
     glEnd();
 
     //displayOptions();
     int m;
     int k = 0;
     int n = 0;
-    
-        for (m = 0; m < Objects.size(); m++) {
-            calculateIntensity(Objects[m], lfx);   
-        }
-    
+
+    for (m = 0; m < Objects.size(); m++) {
+        calculateIntensity(Objects[m], lfx);
+    }
+
 
     for (unsigned int i = 0; i < 4; i++) {
 
@@ -226,7 +228,7 @@ void display()
 
 
         }
-        if (i == 1) {    
+        if (i == 1) {
             //Code Adapted From NEHE tutorial on Multiple Viewports
             // Set The Viewport To The Top Right.  
             //glLoadIdentity();
@@ -235,8 +237,8 @@ void display()
             glLoadIdentity(); // Reset The Projection Matrix
             // Set Up Ortho Mode To Fit 1/4 The Screen (Size Of A Viewport)
             //glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
-          
-            glOrtho(0,(grid_width/scale),0,(grid_height/scale),0,1);
+
+            glOrtho(0, (grid_width / scale), 0, (grid_height / scale), 0, 1);
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
             //gluLookAt(0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0);
@@ -250,17 +252,17 @@ void display()
                     fill_triangles(Objects[k].Ip1, Objects[k], sortedList[n], 1, NMode, grid_width, grid_height);
                 }
             }//Raster_Triangles
-            
+
         }//YZ Projection
         if (i == 2) {
-      
+
             //glLoadIdentity();
-            glViewport((win_width / 2) + 1, 1, (win_width / 2) - 1, (win_height / 2) - 1);   
+            glViewport((win_width / 2) + 1, 1, (win_width / 2) - 1, (win_height / 2) - 1);
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
             //glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
-            glOrtho(0,(grid_width/scale),0,(grid_height/scale),0,1);
- 
+            glOrtho(0, (grid_width / scale), 0, (grid_height / scale), 0, 1);
+
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
             //gluLookAt(0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0);
@@ -273,33 +275,33 @@ void display()
                     fill_triangles(Objects[k].Ip2, Objects[k], sortedList[n], 2, NMode, grid_width, grid_height);
                 }
             }//Raster_Triangles
-            
+
         }//XZ Projection
         if (i == 3) {
-            
+
             //glLoadIdentity();
             //glViewport(0,win_height/2+1,win_width/2-1,win_height/2-1);
-            glViewport(0,0,win_width/2-1,win_height/2-1);     
+            glViewport(0, 0, win_width / 2 - 1, win_height / 2 - 1);
             glMatrixMode(GL_PROJECTION);
-            glLoadIdentity();       
+            glLoadIdentity();
             //glOrtho(0.0, 1.0, 0.0, 1.0, (scale *-1.0), (scale * 1.0) );
             //glOrtho(0, scale, 0, scale, 0, scale);
-            glOrtho(-1.0,(grid_width/scale),-1.0,(grid_height/scale),-1.0,1);
+            glOrtho(-1.0, (grid_width / scale), -1.0, (grid_height / scale), -1.0, 1);
 
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
-                    
+
             //draw_lines();
 
             for (k = 0; k < Objects.size(); k++) {
-                
+
                 std::vector<touple_t> sortedList;
                 sortZ(Objects[k].TList, sortedList);
                 for (n = 0; n < Objects[k].TList.size(); n++) {
                     fill_triangles(Objects[k].Ip3, Objects[k], sortedList[n], 3, NMode, grid_width, grid_height);
                 }
             }//Raster_Triangles
-            
+
         }//XY Projection
     }
 
@@ -312,8 +314,7 @@ void display()
     check();
 }
 
-void draw_lines()
-{
+void draw_lines() {
 
     drawAxis();
 
@@ -340,28 +341,27 @@ void draw_lines()
             drawSegment(p1, p2, p3);
         }
 
-    if(NMode)
-    for (int m = 0; m < Objects.size(); m++) {
-        for (int n = 0; n < Objects[m].VList.size(); n++) {
+    if (NMode)
+        for (int m = 0; m < Objects.size(); m++) {
+            for (int n = 0; n < Objects[m].VList.size(); n++) {
 
-            Point p = Objects[m].VList[n];
-            Vector f(p.xyz[0][0], p.xyz[1][0], p.xyz[2][0]);
-            Vector t = Objects[m].NormVecList[n];
+                Point p = Objects[m].VList[n];
+                Vector f(p.xyz[0][0], p.xyz[1][0], p.xyz[2][0]);
+                Vector t = Objects[m].NormVecList[n];
 
-            glLineWidth(2.0); //sets the "width" of each line we are rendering
-            glBegin(GL_LINES);
-            //Draw Rotation Lines
-            glColor3f(1.0, 0.07, 0.57);
-            glVertex3f(f.x, f.y, f.z);
-            glVertex3f(f.x + t.x, f.y + t.y, f.x + t.z);
-            glEnd();
-        }
-    }//DrawNormals
+                glLineWidth(2.0); //sets the "width" of each line we are rendering
+                glBegin(GL_LINES);
+                //Draw Rotation Lines
+                glColor3f(1.0, 0.07, 0.57);
+                glVertex3f(f.x, f.y, f.z);
+                glVertex3f(f.x + t.x, f.y + t.y, f.x + t.z);
+                glEnd();
+            }
+        }//DrawNormals
 
 }
 
-void drawRotAxis()
-{
+void drawRotAxis() {
     glLineWidth(3.0); //sets the "width" of each line we are rendering
     glBegin(GL_LINES);
     //Draw Rotation Lines
@@ -372,8 +372,7 @@ void drawRotAxis()
 
 }
 
-void drawSegment(Point p0, Point p1, Point p2)
-{
+void drawSegment(Point p0, Point p1, Point p2) {
     glLineWidth(1.0); //sets the "width" of each line we are rendering
     glBegin(GL_LINES);
     //Draw Black Lines
@@ -397,17 +396,16 @@ void drawSegment(Point p0, Point p1, Point p2)
 
 /*this needs to be fixed so that the aspect ratio of the screen is consistant with the orthographic projection*/
 
-void reshape(int width, int height)
-{
+void reshape(int width, int height) {
 
 
     /*set up projection matrix to define the view port*/
     //update the ne window width and height
     win_width = width;
     win_height = height;
-    
-    grid_width = width/2;
-    grid_height = height/2;
+
+    grid_width = width / 2;
+    grid_height = height / 2;
 
     //creates a rendering area across the window
     //glViewport(0, 0, width, height);
@@ -431,45 +429,60 @@ void reshape(int width, int height)
     check();
 }
 
-void SpecialInput(int key, int x, int y)
-{
+void SpecialInput(int key, int x, int y) {
     switch (key) {
-    case GLUT_KEY_UP:
-        printf("User hit the UP Arrow\n");
-        if (TMode == 1) {
-            ty += 0.1;
-            translate(' ', TMode, CObject, Objects, tx, ty, tz);
-        } else if (VMode == 1) {
-            yv += 0.1;
-        }
-        break;
-    case GLUT_KEY_DOWN:
-        printf("User hit the DOWN Arrow\n");
-        if (TMode == 1) {
-            ty -= 0.1;
-            translate(' ', TMode, CObject, Objects, tx, ty, tz);
-        } else if (VMode == 1) {
-            yv -= 0.1;
-        }
-        break;
-    case GLUT_KEY_LEFT:
-        printf("User hit the LEFT Arrow\n");
-        if (TMode == 1) {
-            tx -= 0.1;
-            translate(' ', TMode, CObject, Objects, tx, ty, tz);
-        } else if (VMode == 1) {
-            xv -= 0.1;
-        }
-        break;
-    case GLUT_KEY_RIGHT:
-        printf("User hit the RIGHT Arrow\n");
-        if (TMode == 1) {
-            tx += 0.1;
-            translate(' ', TMode, CObject, Objects, tx, ty, tz);
-        } else if (VMode == 1) {
-            xv += 0.1;
-        }
-        break;
+        case GLUT_KEY_UP:
+            printf("User hit the UP Arrow\n");
+            if (TMode == 1) {
+                ty += 0.1;
+                translate(' ', TMode, CObject, Objects, tx, ty, tz);
+            } else if (VMode == 1) {
+                yv += 0.1;
+            } else if(LMode == 1) {
+                if(arrow > 0)
+                    arrow--;
+                printLight(arrow);
+            }
+            break;
+        case GLUT_KEY_DOWN:
+            printf("User hit the DOWN Arrow\n");
+            if (TMode == 1) {
+                ty -= 0.1;
+                translate(' ', TMode, CObject, Objects, tx, ty, tz);
+            } else if (VMode == 1) {
+                yv -= 0.1;
+            } else if(LMode == 1){
+                if(arrow < 3)
+                    arrow++;
+                printLight(arrow);
+            }
+            break;
+        case GLUT_KEY_LEFT:
+            printf("User hit the LEFT Arrow\n");
+            if (TMode == 1) {
+                tx -= 0.1;
+                translate(' ', TMode, CObject, Objects, tx, ty, tz);
+            } else if (VMode == 1) {
+                xv -= 0.1;
+            } else if(LMode == 1){
+                inc -= 0.1;
+                printLight(arrow);
+                inc = 0;              
+            }
+            break;
+        case GLUT_KEY_RIGHT:
+            printf("User hit the RIGHT Arrow\n");
+            if (TMode == 1) {
+                tx += 0.1;
+                translate(' ', TMode, CObject, Objects, tx, ty, tz);
+            } else if (VMode == 1) {
+                xv += 0.1;
+            } else if(LMode == 1){
+                inc += 0.1;
+                printLight(arrow);
+                inc = 0;
+            }
+            break;
     }
 
     glutPostRedisplay();
@@ -477,13 +490,12 @@ void SpecialInput(int key, int x, int y)
 
 //gets called when a key is pressed on the keyboard
 
-void key(unsigned char ch, int x, int y)
-{
+void key(unsigned char ch, int x, int y) {
     switch (ch) {
-    default:
-        //prints out which key the user hit
-        printf("User hit the \"%c\" key\n", ch);
-        break;
+        default:
+            //prints out which key the user hit
+            printf("User hit the \"%c\" key\n", ch);
+            break;
     }
 
     if (isdigit(ch)) {
@@ -513,15 +525,29 @@ void key(unsigned char ch, int x, int y)
         TMode = VMode = SMode = 0;
         RotateObject(ch, RMode, CObject, angle, Objects, RX0, RX1, RotAxis);
     }
-    if(ch == 'n'){
+    if (ch == 'n') {
         NMode = NMode ? 0 : 1;
-        if(NMode)
+        if (NMode)
             pixel_size = 3;
-        else 
+        else
             pixel_size = 1;
     }
-        
-            
+    if (ch == 'l') {
+        LMode = LMode ? 0 : 1;
+        if (LMode) {
+            printLight(arrow);
+        }//display content
+
+    }
+    if (ch == 'm') {
+        MMode = MMode ? 0 : 1;
+        if (MMode) {
+            //printMaterials(arrow);
+        }//print contents
+
+    }
+
+
 
     //redraw the scene after keyboard input
     glutPostRedisplay();
@@ -530,19 +556,18 @@ void key(unsigned char ch, int x, int y)
 
 //gets called when a mouse button is pressed
 
-void mouse(int button, int state, int x, int y)
-{
+void mouse(int button, int state, int x, int y) {
     //print the pixel location, and the grid location
     printf("MOUSE AT PIXEL: %d %d, GRID: %d %d\n", x, y, (int) (x / pixel_size), (int) ((win_height - y) / pixel_size));
     switch (button) {
-    case GLUT_LEFT_BUTTON: //left button
-        printf("LEFT ");
-        break;
-    case GLUT_RIGHT_BUTTON: //right button
-        printf("RIGHT ");
-    default:
-        printf("UNKNOWN "); //any other mouse button
-        break;
+        case GLUT_LEFT_BUTTON: //left button
+            printf("LEFT ");
+            break;
+        case GLUT_RIGHT_BUTTON: //right button
+            printf("RIGHT ");
+        default:
+            printf("UNKNOWN "); //any other mouse button
+            break;
     }
     if (state != GLUT_DOWN) //button released
         printf("BUTTON UP\n");
@@ -555,8 +580,7 @@ void mouse(int button, int state, int x, int y)
 
 //gets called when the curser moves accross the scene
 
-void motion(int x, int y)
-{
+void motion(int x, int y) {
     //redraw the scene after mouse movement
     glutPostRedisplay();
 }
@@ -564,8 +588,7 @@ void motion(int x, int y)
 //checks for any opengl errors in the previous calls and
 //outputs if they are present
 
-void check()
-{
+void check() {
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
         printf("GLERROR: There was an error %s\n", gluErrorString(err));
@@ -573,8 +596,7 @@ void check()
     }
 }
 
-void drawAxis()
-{
+void drawAxis() {
     glLineWidth(4.0); //sets the "width" of each line we are rendering
 
     //tells opengl to interperate every two calls to glVertex as a line
@@ -598,8 +620,7 @@ void drawAxis()
     glEnd();
 }
 
-void rotateView(char id, int &Mode, float &rval)
-{
+void rotateView(char id, int &Mode, float &rval) {
     if (id == '+') {
         rval += 0.1;
     }//positive
@@ -611,8 +632,7 @@ void rotateView(char id, int &Mode, float &rval)
     std::cout << "S = " << scale << "\n";
 }
 
-void displayOptions()
-{
+void displayOptions() {
 
     //glLoadIdentity();
     //glViewport(win_width - options_width*pixel_size, 0, options_width*pixel_size, win_height);
@@ -638,8 +658,7 @@ void displayOptions()
     glEnd();
 }
 
-void output(GLfloat x, GLfloat y, char *text)
-{
+void output(GLfloat x, GLfloat y, char *text) {
     char *p;
 
     glPushMatrix();
@@ -647,4 +666,97 @@ void output(GLfloat x, GLfloat y, char *text)
     for (p = text; *p; p++)
         glutStrokeCharacter(GLUT_STROKE_ROMAN, *p);
     glPopMatrix();
+}
+
+void printLight(int a) {
+
+    int max = 10;
+    int min = 0;
+    float slider = 0;
+
+    cout << "\n\n\n\n\n";
+
+    if (a == 0) {
+        cout << "\n Light Ambient Component \n";
+        cout << "===> " << "<" << lfx.Ia.x << ", " << lfx.Ia.y << ", " << lfx.Ia.z << ">\n";
+        
+        if((lfx.Ia.x+inc) > 0.0 && (lfx.Ia.x+inc) <= max)
+            lfx.Ia.x = lfx.Ia.y = lfx.Ia.z += inc;
+        
+        slider = lfx.Ia.x / max;
+    } else {
+        cout << "\n Light Ambient Component \n";
+        cout << "" << "<" << lfx.Ia.x << ", " << lfx.Ia.y << ", " << lfx.Ia.z << ">\n";
+    }
+    if (a == 1) {
+        cout << "\n Light Intensity Component \n";
+        cout << "===> " << "<" << lfx.Il.x << ", " << lfx.Il.y << ", " << lfx.Il.z << ">\n";
+        
+        if((lfx.Il.x+inc) > 0.0 && (lfx.Il.x+inc) <= max)
+            lfx.Il.x = lfx.Il.y = lfx.Il.z += inc;
+        
+        slider = lfx.Il.x / max;
+    } else {
+        cout << "\n Light Intensity Component \n";
+        cout << "" << "<" << lfx.Il.x << ", " << lfx.Il.y << ", " << lfx.Il.z << ">\n";
+    }
+    if (a == 2) {
+        cout << "\n #K average “distance” of scene from light source \n";
+        cout << "===> " << "<" << lfx.K << ">\n";
+    
+        if((lfx.K+inc) > 0.0 && (lfx.K+inc) <= max)
+            lfx.K += inc;
+        
+        slider = lfx.K / max;
+    } else {
+        cout << "\n #K average “distance” of scene from light source \n";
+        cout << "" << "<" << lfx.K << ">\n";
+    }
+    if (a == 3) {
+        cout << "\n #F distance of from point from center of screen \n";
+        cout << "===> " << "<" << lfx.f << ">\n";
+    
+        if((lfx.f+inc) > 0.0 && (lfx.f + inc) <= max)
+            lfx.f += inc;
+        
+        slider = lfx.f / max;
+    } else {
+        cout << "\n #F distance of from point from center of screen \n";
+        cout << "" << "<" << lfx.f << ">\n";
+    }
+    
+    int scase = slider * 10;
+
+    switch (scase) {
+        case 1: cout << "\n\n Slider : <-|--------->\n";
+            break;
+        case 2: cout << "\n\n Slider : <--|-------->\n";
+            break;
+        case 3: cout << "\n\n Slider : <---|------->\n";
+            break;
+        case 4: cout << "\n\n Slider : <----|------>\n";
+            break;
+        case 5: cout << "\n\n Slider : <-----|----->\n";
+            break;
+        case 6: cout << "\n\n Slider : <------|---->\n";
+            break;
+        case 7: cout << "\n\n Slider : <-------|--->\n";
+            break;
+        case 8: cout << "\n\n Slider : <--------|-->\n";
+            break;
+        case 9: cout << "\n\n Slider : <---------|->\n";
+            break;
+        case 10: cout << "\n\n Slider : <----------|>\n";
+            break;
+        default:
+            cout << "\n\n Slider : <|---------->\n";
+            break;
+    }
+
+
+}
+
+void printMaterial(int a) {
+
+
 }
