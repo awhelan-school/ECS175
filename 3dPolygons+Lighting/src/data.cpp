@@ -26,54 +26,150 @@ Vector IR;
 void draw_pix(float x, float y, float Ic)
 {
 
+    int iPix;
+    int a[10];
+    int ra[10];
+    int pa[10];
+
     if (Ic < 0) {
-        //cout << "IC ====>>>>" << Ic << "\n\n";
         Ic = 0;
     }
     if (Ic > 1) {
-        //cout << "IC ====>>>>" << Ic << "\n\n";
         Ic = 1;
     }
 
     if (Ic >= 0 && Ic <= 1) {
-        
-        if(N == 1){
-            
+
+        if (N == 1) {
+
+
+            if (Ic >= 0 && Ic <= 0.1)
+                iPix = 0;
+            else if (Ic > 0.1 && Ic <= 0.2)
+                iPix = 1;
+            else if (Ic > 0.2 && Ic <= 0.3)
+                iPix = 2;
+            else if (Ic > 0.3 && Ic <= 0.4)
+                iPix = 3;
+            else if (Ic > 0.4 && Ic <= 0.5)
+                iPix = 4;
+            else if (Ic > 0.5 && Ic <= 0.6)
+                iPix = 5;
+            else if (Ic > 0.6 && Ic <= 0.7)
+                iPix = 6;
+            else if (Ic > 0.7 && Ic <= 0.8)
+                iPix = 7;
+            else if (Ic > 0.8 && Ic <= 0.9)
+                iPix = 8;
+            else if (Ic > 0.9 && Ic <= 1.0)
+                iPix = 9;
+
+            for (int i = 0; i < 10; i++) {
+                a[i] = i;
+            }//Generate Numbers
+
+            //Randomize
+            std::random_shuffle(a, a + 10);
+            for (int i = 0; i < 10; i++) {
+                if (i < iPix)
+                    ra[i] = a[i];
+                else
+                    ra[i] = -1;
+            }
+
+            for (int itr = 0; itr < 10; itr++) {
+
+                for (int k = 0; k < 10; k++) {
+
+                    if (itr == ra[k]) {
+                        pa[itr] = 1;
+                        break;
+                    }
+                    else
+                        pa[itr] = 0;
+                }//check if on/off pixel
+            }//make pixel array
+
             /*
              *  [-,-][0,-][+,-]
              *  [-,0][0,0][+,0]
              *  [-,+][0,+][+,+]
              */
-            glBegin(GL_POINTS);
-            glColor3f(Ic, Ic, Ic);
             
             
-            glVertex3f(x - 1.0, y - 1.0, 0);// index 1
-            glVertex3f(x, y - 1.0, 0);// index 2 
-            glVertex3f(x + 1.0, y - 1.0, 0);//index 3 
-            
-             
-            glVertex3f(x - 1.0, y, 0);// index 4
-            glVertex3f(x, y, 0); //center
-            glVertex3f(x + 1.0, y, 0);//index 6
-            
-            
-            glVertex3f(x - 1.0, y + 1.0, 0);// index 7
-            glVertex3f(x, y + 1.0, 0);// index 8 
-            glVertex3f(x + 1.0, y + 1.0, 0);//index 9
-            
-     
-            glEnd();     
-            
-            
+            for(int i = 0; i < 9; i++){
+                
+                if(i == 0){
+                    glBegin(GL_POINTS);
+                    glColor3f(pa[i], pa[i], pa[i]);
+                    glVertex3f(x - 1.0, y - 1.0, 0); // index 1
+                    glEnd();       
+                }
+                if(i == 1){
+                    glBegin(GL_POINTS);
+                    glColor3f(pa[i], pa[i], pa[i]);
+                    glVertex3f(x, y - 1.0, 0); // index 2 
+                    glEnd();
+                }
+                if(i == 2){
+                    glBegin(GL_POINTS);
+                    glColor3f(pa[i], pa[i], pa[i]);
+                    glVertex3f(x + 1.0, y - 1.0, 0); //index 3 
+                    glEnd();
+                    
+                }
+                if(i == 3){
+                    glBegin(GL_POINTS);
+                    glColor3f(pa[i], pa[i], pa[i]);
+                    glVertex3f(x - 1.0, y, 0); // index 4
+                    glEnd();
+                    
+                }
+                if(i == 4){
+                    glBegin(GL_POINTS);
+                    glColor3f(pa[i], pa[i], pa[i]);
+                    glVertex3f(x, y, 0); //center
+                    glEnd();
+                    
+                }
+                if(i == 5){
+                    glBegin(GL_POINTS);
+                    glColor3f(pa[i], pa[i], pa[i]);
+                    glVertex3f(x + 1.0, y, 0); //index 6
+                    glEnd();
+                    
+                }
+                if(i == 6){
+                    glBegin(GL_POINTS);
+                    glColor3f(pa[i], pa[i], pa[i]);
+                    glVertex3f(x - 1.0, y + 1.0, 0); // index 7
+                    glEnd();
+                    
+                }
+                if(i == 7){
+                    glBegin(GL_POINTS);
+                    glColor3f(pa[i], pa[i], pa[i]);
+                    glVertex3f(x, y + 1.0, 0); // index 8
+                    glEnd();
+                    
+                }
+                if(i == 8){
+                    glBegin(GL_POINTS);
+                    glColor3f(pa[i], pa[i], pa[i]);
+                    glVertex3f(x + 1.0, y + 1.0, 0); //index 9
+                    glEnd();
+                    
+                }        
+            }
+
         }// Half Toning
-        else{
+        else {
             glBegin(GL_POINTS);
             glColor3f(Ic, Ic, Ic);
             glVertex3f(x + .5, y + .5, 0);
-            glEnd();         
+            glEnd();
         }//Regular Shading
-        
+
 
     }//clamp Intensity 0 < i < 1
 
@@ -170,7 +266,7 @@ void calculateIntensity(Object &o, Light &lfx)
     o.Ip1.clear();
     o.Ip2.clear();
     o.Ip3.clear();
-    
+
 
     for (int i = 0; i < 4; i++) {
 
@@ -260,7 +356,7 @@ Vector Phong(Object &o, Vector &fp, Light &lfx, int v)
         Vout.x = Vout.y = Vout.z = 0;
     if (Vout.x > 1)
         Vout.x = Vout.y = Vout.z = 1;
-    
+
 
     cout << Vout;
 
@@ -327,14 +423,14 @@ void fill_triangles(std::vector<Vector> &Ip, Object &obj, touple_t &TList, int V
         e3.iR = I2.x; //right Intensity as Vertex 2         
     }
 
-    
-//    cout << "e1-1: x  I =>  " << e1.p1.x << " | " << e1.iL << "\n";
-//    cout << "e1-1: y  I =>  " << e1.p1.y << " | " << e1.iL << "\n";
-//    cout << "e1-2: x  I =>  " << e1.p2.x << " | " << e1.iR << "\n";
-//    cout << "e1-2: y  I =>  " << e1.p2.y << " | " << e1.iR << "\n";
-//    
-    
-    
+
+    //    cout << "e1-1: x  I =>  " << e1.p1.x << " | " << e1.iL << "\n";
+    //    cout << "e1-1: y  I =>  " << e1.p1.y << " | " << e1.iL << "\n";
+    //    cout << "e1-2: x  I =>  " << e1.p2.x << " | " << e1.iR << "\n";
+    //    cout << "e1-2: y  I =>  " << e1.p2.y << " | " << e1.iR << "\n";
+    //    
+
+
     //intersect edges
     scanline_edges(e1, e2);
     scanline_edges(e1, e3);
