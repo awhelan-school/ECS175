@@ -150,8 +150,12 @@ void idle()
 {
 
     for (int i = 0; i < Objects.size(); i++) {
-        for (int k = 0; k < Objects[i].NormVecList.size(); k++)
+        for (int k = 0; k < Objects[i].TList.size(); k++){
             ;//calculateNormalV(Objects[i]);
+            ;//calculateIntensity(Objects[i], lfx);
+            
+        }
+            
     }
 
     //redraw the scene over and over again
@@ -189,9 +193,13 @@ void display()
     glEnd();
 
     //displayOptions();
-
+    int m;
     int k = 0;
     int n = 0;
+    
+        for (m = 0; m < Objects.size(); m++) {
+            calculateIntensity(Objects[m], lfx);   
+        }
     
 
     for (unsigned int i = 0; i < 4; i++) {
@@ -239,7 +247,7 @@ void display()
                 std::vector<touple_t> sortedList;
                 sortX(Objects[k].TList, sortedList);
                 for (n = 0; n < Objects[k].TList.size(); n++) {
-                    //fill_triangles(Objects[k].Ip1, Objects[k], sortedList[n], 1, NMode, grid_width, grid_height);
+                    fill_triangles(Objects[k].Ip1, Objects[k], sortedList[n], 1, NMode, grid_width, grid_height);
                 }
             }//Raster_Triangles
             
@@ -262,7 +270,7 @@ void display()
                 std::vector<touple_t> sortedList;
                 sortY(Objects[k].TList, sortedList);
                 for (n = 0; n < Objects[k].TList.size(); n++) {
-                    //fill_triangles(Objects[k].Ip2, Objects[k], sortedList[n], 2, NMode, grid_width, grid_height);
+                    fill_triangles(Objects[k].Ip2, Objects[k], sortedList[n], 2, NMode, grid_width, grid_height);
                 }
             }//Raster_Triangles
             

@@ -42,7 +42,11 @@ void translate(char id, int &Mode, int OID, std::vector<Object> &Objects, GLfloa
 
         }//Update Vertices
         Objects[OID].center = MT * Objects[OID].center;
-
+        if(tx > 1 || ty > 1 || tx > 1){
+            calculateNormalV(Objects[OID]);
+            
+        }
+            
         UpdateTList(Objects, OID);        
     }
     tx = ty = tz = 0;

@@ -8,7 +8,7 @@ std::ofstream debug("./debug.txt", std::ios::trunc);
 
 //map this square to the framebuffer when projecting
 vpt min_vbox = {0.0, 0.0, 0.0};
-vpt max_vbox = {1.0, 1.0, 1.0};
+vpt max_vbox = {1.0, 1.0, 0.0};
 
 
 float gridW;
@@ -35,12 +35,47 @@ void draw_pix(float x, float y, float Ic)
         Ic = 1;
     }
 
-    if (Ic >= 0 || Ic <= 1) {
-        glBegin(GL_POINTS);
-        glColor3f(Ic, Ic, Ic);
-        glVertex3f(x + .5, y + .5, 0);
-        glEnd();
-    }
+    if (Ic >= 0 && Ic <= 1) {
+        
+        if(N == 1){
+            
+            /*
+             *  [-,-][0,-][+,-]
+             *  [-,0][0,0][+,0]
+             *  [-,+][0,+][+,+]
+             */
+            glBegin(GL_POINTS);
+            glColor3f(Ic, Ic, Ic);
+            
+            
+            glVertex3f(x - 1.0, y - 1.0, 0);// index 1
+            glVertex3f(x, y - 1.0, 0);// index 2 
+            glVertex3f(x + 1.0, y - 1.0, 0);//index 3 
+            
+             
+            glVertex3f(x - 1.0, y, 0);// index 4
+            glVertex3f(x, y, 0); //center
+            glVertex3f(x + 1.0, y, 0);//index 6
+            
+            
+            glVertex3f(x - 1.0, y + 1.0, 0);// index 7
+            glVertex3f(x, y + 1.0, 0);// index 8 
+            glVertex3f(x + 1.0, y + 1.0, 0);//index 9
+            
+     
+            glEnd();     
+            
+            
+        }// Half Toning
+        else{
+            glBegin(GL_POINTS);
+            glColor3f(Ic, Ic, Ic);
+            glVertex3f(x + .5, y + .5, 0);
+            glEnd();         
+        }//Regular Shading
+        
+
+    }//clamp Intensity 0 < i < 1
 
 }
 
@@ -78,10 +113,10 @@ void UpdateTList(std::vector<Object> &o, int &OID)
 void calculateNormalV(Object &o)
 {
 
-    o.NormVecList.clear();
+    //o.NormVecList.clear();
+    //o.NormVecList.resize(o.VList.size());
 
     Vector avgNormal(0, 0, 0);
-    Vector Normal(1, 1, 1);
 
     int k = 0; // Adjacent Vectors
 
@@ -117,7 +152,7 @@ void calculateNormalV(Object &o)
         }//In each Triangle Tuple
 
 
-        cout << "\nK value for index ==" << i << " =====>>> " << k;
+        //cout << "\nK value for index ==" << i << " =====>>> " << k;
         Vector::normalize(avgNormal);
         cout << "\nNORMALIZED VECTOR ==" << avgNormal;
 
@@ -131,6 +166,11 @@ void calculateNormalV(Object &o)
 void calculateIntensity(Object &o, Light &lfx)
 {
     int v;
+    o.Ip0.clear();
+    o.Ip1.clear();
+    o.Ip2.clear();
+    o.Ip3.clear();
+    
 
     for (int i = 0; i < 4; i++) {
 
@@ -218,6 +258,9 @@ Vector Phong(Object &o, Vector &fp, Light &lfx, int v)
 
     if (Vout.x < 0)
         Vout.x = Vout.y = Vout.z = 0;
+    if (Vout.x > 1)
+        Vout.x = Vout.y = Vout.z = 1;
+    
 
     cout << Vout;
 
