@@ -114,6 +114,7 @@ void readFile(std::vector<Object> &vec, Light &lfx, vector<Material> &mat) {
                 vec[i].TList[k].p2.id = p2 - 1;
                 vec[i].TList[k].p3 = vec[i].VList[p3 - 1];
                 vec[i].TList[k].p3.id = p3 - 1;
+                vec[i].TList[k].id = i;
             }//Make_Edges    
             
             //Calculate Normals

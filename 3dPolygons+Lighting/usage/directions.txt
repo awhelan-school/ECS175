@@ -1,17 +1,56 @@
-*********************************************************************
-*			Polygon 3D Geometry 			    *		  
-*********************************************************************
-*										  	        *
-* ->(T)ranslate Polygon - Use Arrow Keys					  	        *
-* ->(R)otate Object - Toggle "r" and rotate with +/-		  			        *
-* ->(S)cale Object  - Toggle "s" and scale with +/-		      			        *
-* ->(V)iewport Pan  - Toggle "v" and pan camera with +/- & arrow keys	
-*	        
-* ->(0-9)Select Object - Select Object to Manipulate			                    
-*			  								        *
+**********************************************************************
+*			Light Model and Shading 	             *		  
+**********************************************************************
+*								     *
+* ->(T)ranslate Polygon - Use Arrow Keys			     *
+* ->(R)otate Object - Toggle "r" and rotate with +/-		     *
+* ->(S)cale Object  - Toggle "s" and scale with +/-		     *
+* ->(V)iewport Pan  - Toggle "v" and pan camera with +/- & arrow key *	
+* ->(H)alfTone      - Toggle "h" to display HalfTone                 *
+* ->(L)ight         - Toggle "l" to display Light Sliders            *
+* ->(X)Source       - Toggle "x" to move light source                *
+* ->(M)aterials     - Toggle "m" to adjust material properties	     *
+* ->(0-9)Select Object - Select Object to Manipulate		     *	                    
+*			  					     *
 **********************************************************************
 
 # Detailed Descriptions
+
+Project 3 Instuctions
+__________________________________________________________________________________________________________
+
+
+1) HalfTone: Pressing this key will render the scene in a halftone. I just used a random shuffle to get numbers between 0-10 based on intensity and either set the pixel on/off (i.e 0 or 1). I set pixel size to 3 instead of 1 and just call gl_vertex 9 times like you suggested.
+       
+2) Light: All the sliders are "Virtual Sliders" (pattent pending). They are just rendered in console and you can use the up and down keys to cycle through them and left/right keys to increase and descrease their respective values. 
+         
+3) Source: The light source is rendered in 3D space and marked as a yellow dot in Viewport 1. Hitting X will let you change the desired x,y,z coordinates. The scene is also rendered dynamically so changing the light position will adjust the shading.
+       
+4) Materials: Same concept as Light, changing values with arrow keys and cycling through them with up/down arrow keys.      
+
+5) Painters Algorithm: This is implemented with STL sort and a simple comparator function that puts the triangles in ascending order based on their depth. I adjusted my implementation to allow for translations to affect the rendering of triangles. In other words, you can try moving the objects in front of each other using viewport 1 and you will notice that they are rendered in the correct order. Only translations not scale. 
+
+# Additional Notes
+
+* Project 2 Instructions below for reference
+
+* Half-Toning also displays the normal vectors. 
+
+* Sliders are virtual so they display a percentage of values from 0-10 -> min,max. I wasn't sure about the range of some values such as Phong exponent and just left it as a Natural number. 
+
+* All of the rasterization is handled by your sample rasterizer (THANK YOU) :)
+
+* Input files reside in the input folder
+
+* Source and Include files are in the respective folders
+
+* The bunny object must be copied and pasted or renamed to test_objs.txt. Comments are okay they are filtered and I only use the raw values. 
+
+* Tested on both MacOS and Linux(Ubuntu) just change a single line in the Makefile
+
+Project 2 Instructions
+__________________________________________________________________________________________________________
+
 1) Selection - Use the number keys to select an object you wish to perform a transformation on. Valid Keys are numerical keys 0-9. Once an object is selected you can chain multiple transformations on that particular object.
 
 2) View-port Pan (extra) - This was implemented with gluLookAt() and sets up the camera initially looking at the center of the unit cube (0.5 0.5 0.5) From the -1.0 Z Axis to achieve a sort of perspective projection. The panning functionality allows you to zoom in/out with the +/- keys and pan the scene in up/down and left/right directions using arrow keys. I mainly used it to get perspective on objects in 3D space and to be able to move my objects inside the unit cube since.
@@ -22,14 +61,6 @@
 
 5) Switching Modes - Toggling the proper key will put you in that desired transformation mode. Transformations will not be performed unless a Mode is specified. 
  
-# Additional Notes
 
-* The test File with coordinates was changed to test_scene to keep with convention. 
 
-* The Orthogonal projections (xy, yz, xz) are set up as positive axis values from 0 to 1. If an object's coordinates are outside that viewport then they won't appear on the orthogonal viewport but will appear on the perspective one. In addition using the pan feature/scale allows you to place objects within this Orthogonal coordinate space but it must be done manually.
 
-* Rotate Feature: Pressing "R" once will ask for the coordinates Points P0 and P1. Then the user can perform the rotation with +/- keys but also perform other transformation without removing the rotation axis. In other words, you can rotate then scale, translate, pan and rotate one again. Pressing "R" twice (i.e when in Rotation Mode) will erase the axis and you can press "R" again to input a new Rotation Axis.
-
-* Rotations about arbitrary axis was performed using Quaternion rotations which made it easier to deal with axis that coincided with the coordinate axis.
-
-* Some code in the matrix class was implemented but ultimately not used because of how convenient Quaternion rotations are.

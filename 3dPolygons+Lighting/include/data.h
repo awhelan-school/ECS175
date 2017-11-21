@@ -51,6 +51,7 @@ typedef struct{
     Point p1,p2,p3;
     float max;
     Vector normal;
+    int id;
 }touple_t;
 
 typedef struct{

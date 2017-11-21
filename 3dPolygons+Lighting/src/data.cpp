@@ -250,7 +250,7 @@ void calculateNormalV(Object &o)
 
         //cout << "\nK value for index ==" << i << " =====>>> " << k;
         Vector::normalize(avgNormal);
-        cout << "\nNORMALIZED VECTOR ==" << avgNormal;
+        //cout << "\nNORMALIZED VECTOR ==" << avgNormal;
 
         k = 0; // Reset for New Vertex
         o.NormVecList[i] = avgNormal;
@@ -570,7 +570,7 @@ void project(int ViewPort, touple_t &TList, vpt &v0, vpt &v1, vpt &v2, std::vect
 
 void sortZ(vector<touple_t> TList, vector<touple_t> &sortedList)
 {
-    sortedList.resize(TList.size());
+    sortedList.resize(sortedList.size() + TList.size());
     int i;
     float max = TList[0].p1.xyz[2][0];
 
@@ -592,15 +592,17 @@ void sortZ(vector<touple_t> TList, vector<touple_t> &sortedList)
 
     for (i = 0; i < TList.size(); i++) {
 
-        sortedList[i] = TList[i];
+        sortedList.push_back(TList[i]);
 
     }//Assign Max Depth to each Set
+    
+    sort(sortedList.begin(), sortedList.end(), comparator);
 
 }
 
 void sortX(vector<touple_t> TList, vector<touple_t> &sortedList)
 {
-    sortedList.resize(TList.size());
+    sortedList.resize(sortedList.size() + TList.size());
     int i;
     float max = TList[0].p1.xyz[0][0];
 
@@ -622,15 +624,17 @@ void sortX(vector<touple_t> TList, vector<touple_t> &sortedList)
 
     for (i = 0; i < TList.size(); i++) {
 
-        sortedList[i] = TList[i];
+        sortedList.push_back(TList[i]);
 
     }//Assign Max Depth to each Set
+    
+    sort(sortedList.begin(), sortedList.end(), comparator);
 
 }
 
 void sortY(vector<touple_t> TList, vector<touple_t> &sortedList)
 {
-    sortedList.resize(TList.size());
+    sortedList.resize(sortedList.size() + TList.size());
     int i;
     float max = TList[0].p1.xyz[1][0];
 
@@ -652,9 +656,11 @@ void sortY(vector<touple_t> TList, vector<touple_t> &sortedList)
 
     for (i = 0; i < TList.size(); i++) {
 
-        sortedList[i] = TList[i];
+        sortedList.push_back(TList[i]);
 
     }//Assign Max Depth to each Set
+    
+    sort(sortedList.begin(), sortedList.end(), comparator);
 
 }
 
